@@ -1,63 +1,99 @@
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Dimensions, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: '#808080',
-        headerShown: false,
-        tabBarShowLabel: false,
         tabBarStyle: {
           position: 'absolute',
           bottom: 20,
           left: 20,
           right: 20,
-          backgroundColor: '#6e6a6a',
-          borderRadius: 30,
+          elevation: 0,
+          backgroundColor: '#f6f9fa',
+          borderRadius: 25,
           height: 60,
         },
-        tabBarItemStyle: {
-          alignItems: 'center',
-          justifyContent: 'center',
-        }
+        tabBarShowLabel: false,
+        headerShown: false,
+        tabBarButton: (props) => {
+          const { accessibilityState, onPress, children } = props;
+          const focused = accessibilityState?.selected;
+
+          return (
+            <TouchableOpacity
+              onPress={onPress}
+              activeOpacity={1}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  {
+                    padding: 10,
+                    borderRadius: 20,
+                  },
+                  focused && {
+                    backgroundColor: '#8B4513',
+                  },
+                ]}>
+                {children}
+              </View>
+            </TouchableOpacity>
+          );
+        },
       }}>
       <Tabs.Screen
         name="fridge"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="restaurant-outline" size={24} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+              name="restaurant-outline" 
+              size={24} 
+              color={focused ? '#FFFFFF' : '#808080'} 
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="recipes"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={24} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+              name="book-outline" 
+              size={24} 
+              color={focused ? '#FFFFFF' : '#808080'} 
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="time-outline" size={24} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+              name="time-outline" 
+              size={24} 
+              color={focused ? '#FFFFFF' : '#808080'} 
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={24} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+              name="person-outline" 
+              size={24} 
+              color={focused ? '#FFFFFF' : '#808080'} 
+            />
           ),
         }}
       />
