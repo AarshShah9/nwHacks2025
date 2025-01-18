@@ -2,8 +2,6 @@ import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, Dimensions, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-
 export default function TabLayout() {
   return (
     <Tabs
@@ -50,7 +48,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="fridge"
+        name="index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons 
