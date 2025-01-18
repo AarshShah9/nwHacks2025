@@ -72,6 +72,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="camera"
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+              name="add-circle-outline" 
+              size={24} 
+              color={focused ? '#FFFFFF' : '#808080'} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="history"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
