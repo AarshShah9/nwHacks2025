@@ -98,7 +98,18 @@ export default function RecipesScreen() {
       ) : (
         <View style={styles.recipesContainer}>
           {recipes.map((recipe, index) => (
-            <TouchableOpacity key={index} style={styles.recipeCard}>
+            <TouchableOpacity 
+              key={index} 
+              style={styles.recipeCard}
+              onPress={() => router.push({
+                pathname: '/recipe/[id]',
+                params: { 
+                  id: index.toString(),
+                  recipe: JSON.stringify(recipe),
+                  mode: 'view'
+                }
+              })}
+            >
               <View style={styles.recipeHeader}>
                 <Text style={styles.recipeName}>{recipe.recipe_name}</Text>
                 <View style={styles.recipeMetrics}>

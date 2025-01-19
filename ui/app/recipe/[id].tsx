@@ -22,6 +22,7 @@ export default function RecipeDetailScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
+  const isViewMode = params.mode === 'view';
 
   const handleReroll = async () => {
     try {
@@ -33,8 +34,11 @@ export default function RecipeDetailScreen() {
       const newRecipe = await response.json();
       // Update the current screen with new recipe data
       router.replace({
-        pathname: `/recipe/${Date.now()}`,
-        params: { recipe: JSON.stringify(newRecipe) }
+        pathname: '/recipe/[id]',
+        params: { 
+          id: Date.now().toString(),
+          recipe: JSON.stringify(newRecipe)
+        }
       });
     } catch (error) {
       console.error('Error generating new recipe:', error);
@@ -103,26 +107,28 @@ export default function RecipeDetailScreen() {
         <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.button, styles.rerollButton]} 
-          onPress={handleReroll}
-          disabled={loading}
-        >
-          <Ionicons name="refresh" size={24} color="#8B4513" />
-          <Text style={styles.rerollButtonText}>
-            {loading ? 'Generating...' : 'Try Another Recipe'}
-          </Text>
-        </TouchableOpacity>
+      {!isViewMode && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[styles.button, styles.rerollButton]} 
+            onPress={handleReroll}
+            disabled={loading}
+          >
+            <Ionicons name="refresh" size={24} color="#8B4513" />
+            <Text style={styles.rerollButtonText}>
+              {loading ? 'Generating...' : 'Try Another Recipe'}
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={[styles.button, styles.confirmButton]}
-          onPress={handleConfirm}
-        >
-          <Ionicons name="checkmark-circle" size={24} color="#fff" />
-          <Text style={styles.confirmButtonText}>Cook This!</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity 
+            style={[styles.button, styles.confirmButton]}
+            onPress={handleConfirm}
+          >
+            <Ionicons name="checkmark-circle" size={24} color="#fff" />
+            <Text style={styles.confirmButtonText}>Cook This!</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 }

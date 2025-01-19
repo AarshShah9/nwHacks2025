@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '../../context/UserContext';
 
 const QUICK_ACTIONS = [
-  { id: 1, icon: 'grid' as keyof typeof Ionicons.glyphMap, label: 'My Fridge', route: '/fridge' },
+  { id: 1, icon: 'grid' as keyof typeof Ionicons.glyphMap, label: 'My Fridge', route: '/fridge'},
   { id: 2, icon: 'search' as keyof typeof Ionicons.glyphMap, label: 'Search' },
   { id: 3, icon: 'calendar' as keyof typeof Ionicons.glyphMap, label: 'Track' },
   { id: 4, icon: 'trophy' as keyof typeof Ionicons.glyphMap, label: 'Leaderboard', route: '/leaderboard' },
@@ -76,6 +76,25 @@ export default function DiscoverScreen() {
     return 1;
   };
 
+  const getLevelProgress = (exp: number) => {
+    // Define level thresholds
+    const levels = [
+      { min: 0, max: 100 },    // Level 1: 0-100
+      { min: 100, max: 250 },  // Level 2: 100-250
+      { min: 250, max: 500 },  // Level 3: 250-500
+      { min: 500, max: 1000 }, // Level 4: 500-1000
+      { min: 1000, max: 1500 } // Level 5: 1000-1500
+    ];
+
+    const currentLevel = getLevel(exp) - 1; // Convert to 0-based index
+    const { min, max } = levels[currentLevel];
+    const levelExp = exp - min;
+    const levelRange = max - min;
+    const progress = (levelExp / levelRange) * 100;
+    
+    return Math.min(progress, 100);
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Discover</Text>
@@ -96,7 +115,12 @@ export default function DiscoverScreen() {
           </View>
         </View>
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: '60%' }]} />
+          <View 
+            style={[
+              styles.progressFill, 
+              { width: `${loading ? 0 : profileData ? getLevelProgress(profileData.exp) : 0}%` }
+            ]} 
+          />
         </View>
       </View>
 
@@ -106,7 +130,7 @@ export default function DiscoverScreen() {
           <TouchableOpacity 
             key={action.id} 
             style={styles.actionItem}
-            onPress={() => action.route ? router.push(action.route) : null}
+            onPress={() => action.route ? router.push({ pathname: action.route as any }) : null}
           >
             <View style={styles.actionIcon}>
               <Ionicons name={action.icon} size={24} color="#8B4513" />

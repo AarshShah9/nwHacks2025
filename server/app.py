@@ -155,19 +155,7 @@ def recipesGet():
         return get_recipes(), 200
     else:
         return error()
-    
 
-
-"""
-    Get Recipes Endpoint -> GET
-    @return: recipes
-"""
-@app.route('/recipes/get', methods=['GET'])
-def recipesGet():
-    if request.method == 'GET':
-        return get_recipes(), 200
-    else:
-        return error()
 
 def error():
     return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
