@@ -7,13 +7,8 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          position: 'absolute',
-          bottom: 20,
-          left: 20,
-          right: 20,
           elevation: 0,
           backgroundColor: '#f6f9fa',
-          borderRadius: 25,
           height: 60,
         },
         tabBarShowLabel: false,
