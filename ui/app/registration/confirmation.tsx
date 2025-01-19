@@ -5,8 +5,7 @@ import { MotiText, MotiView } from "moti";
 
 const ConfirmationPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies, preference, diseases } =
-    useLocalSearchParams(); // Retrieve parameters passed via navigation
+  const { name, allergies, restrictions, diseases } = useLocalSearchParams(); // Retrieve parameters passed via navigation
 
   const handleSubmit = () => {
     // Navigate to onboarding
@@ -14,9 +13,8 @@ const ConfirmationPage: React.FC = () => {
       pathname: "/registration/onboarding",
       params: {
         name,
-        email,
         allergies,
-        preference,
+        restrictions,
         diseases,
       },
     });
@@ -55,12 +53,6 @@ const ConfirmationPage: React.FC = () => {
           <MotiText style={styles.label}>Name:</MotiText>
           <MotiText style={styles.value}>{name || "Not provided"}</MotiText>
         </View>
-
-        <View style={[styles.detailRow, styles.textAlign]}>
-          <MotiText style={styles.label}>Email:</MotiText>
-          <MotiText style={styles.value}>{email || "Not provided"}</MotiText>
-        </View>
-
         <View style={[styles.detailRow, styles.textAlign]}>
           <MotiText style={styles.label}>Allergies:</MotiText>
           <MotiText style={styles.value}>
@@ -72,9 +64,9 @@ const ConfirmationPage: React.FC = () => {
           <MotiText style={styles.value}>{diseases || "Not provided"}</MotiText>
         </View>
         <View style={[styles.detailRow, styles.textAlign]}>
-          <MotiText style={styles.label}>Preferences:</MotiText>
+          <MotiText style={styles.label}>Restrictions:</MotiText>
           <MotiText style={styles.value}>
-            {preference || "Not provided"}
+            {restrictions || "Not provided"}
           </MotiText>
         </View>
       </MotiView>

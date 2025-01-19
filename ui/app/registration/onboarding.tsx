@@ -10,37 +10,54 @@ import { MotiText, MotiView } from "moti";
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies, diseases, preference } =
-    useLocalSearchParams();
+  const { name, allergies, diseases, restrictions } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
     setLoading(true); // Start the loading animation
 
-    // Simulate async operation (e.g., API call)
-    setTimeout(() => {
-      console.log("User data submitted:", {
+    try {
+      // Prepare user data for the API call
+      const userData = {
         name,
-        email,
         allergies,
-        preference,
         diseases,
+        restrictions,
+        exp: 0,
+      };
+
+      // Make the POST request to the backend
+      const response = await fetch("http://127.0.0.1:5000/profile/modify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
       });
 
-      // Navigate to onboarding after loading
+      // Check if the request was successful
+      if (!response.ok) {
+        throw new Error("Failed to save user data.");
+      }
+
+      console.log("User data successfully sent:", userData);
+
+      // Navigate to the main application
       router.push({
         pathname: "/(tabs)",
         params: {
           name,
-          email,
           allergies,
-          preference,
+          restrictions,
           diseases,
         },
       });
-
-      setLoading(false); // Stop the loading animation (optional, as navigation occurs)
-    }, 2000); // 2-second delay
+    } catch (error) {
+      console.error("Error saving user data:", error);
+      alert("Failed to save user data. Please try again.");
+    } finally {
+      setLoading(false); // Stop the loading animation
+    }
   };
 
   return (
@@ -104,7 +121,6 @@ const OnboardingPage: React.FC = () => {
       </MotiView>
 
       {/* Get Started Button */}
-
       {loading ? (
         <ActivityIndicator size="large" color="#007BFF" style={styles.loader} />
       ) : (
@@ -150,7 +166,7 @@ const styles = StyleSheet.create({
   stepCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5DC", // Soft beige background for the card
+    backgroundColor: "#F5F5DC",
     padding: 15,
     marginBottom: 15,
     borderRadius: 10,
@@ -163,13 +179,13 @@ const styles = StyleSheet.create({
   stepIcon: {
     fontSize: 24,
     marginRight: 10,
-    color: "#4B2E2A", // Earthy brown for the icons
+    color: "#4B2E2A",
   },
   stepText: {
     fontSize: 16,
     color: "#4B2E2A",
     lineHeight: 22,
-    flexShrink: 1, // Prevent text from overflowing
+    flexShrink: 1,
   },
   loader: {
     marginTop: 20,

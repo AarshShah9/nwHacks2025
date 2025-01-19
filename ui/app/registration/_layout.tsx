@@ -9,10 +9,11 @@ const RegistrationLayout: React.FC = () => {
       }}
     >
       <Stack.Screen name="intro" />
-      <Stack.Screen name="registration" />
+      <Stack.Screen name="userbasic" />
       <Stack.Screen name="health" />
       <Stack.Screen name="preferences" />
       <Stack.Screen name="confirmation" />
+      <Stack.Screen name="onboarding" />
     </Stack>
   );
 };

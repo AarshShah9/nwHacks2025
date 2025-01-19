@@ -22,7 +22,6 @@ const RegistrationPage: React.FC = () => {
       pathname: "/registration/health",
       params: {
         name: name, // Pass the entered name
-        email: email, // Pass the entered email
       },
     });
   };

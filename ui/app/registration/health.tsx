@@ -11,7 +11,7 @@ import { MotiText, MotiView } from "moti";
 
 const HealthInfoPage: React.FC = () => {
   const router = useRouter();
-  const { name, email } = useLocalSearchParams(); // Retrieve name and email from params
+  const { name } = useLocalSearchParams(); // Retrieve name and email from params
   const [allergies, setAllergies] = useState("");
   const [diseases, setDiseases] = useState<string[]>([]);
 
@@ -28,7 +28,6 @@ const HealthInfoPage: React.FC = () => {
       pathname: "/registration/preferences",
       params: {
         name: name, // Forward the name
-        email: email, // Forward the email
         allergies: allergies, // Add the new data (allergies)
         diseases: diseases, // Add selected diseases
       },
