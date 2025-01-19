@@ -60,6 +60,7 @@ export default function RecipeDetailScreen() {
   };
 
   const handleConfirm = async () => {
+    console.log("YO");
     try {
       setLoading(true);
       setLoadingMessage('Confirming recipe...');
@@ -116,7 +117,28 @@ export default function RecipeDetailScreen() {
         </View>
 
         <Text style={styles.description}>{recipe.short_description}</Text>
+        {!isViewMode && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.rerollButton]} 
+              onPress={handleReroll}
+              disabled={loading}
+            >
+              <Ionicons name="refresh" size={24} color="#8B4513" />
+              <Text style={styles.rerollButtonText}>
+                {loading ? 'Generating...' : 'Try Another Recipe'}
+              </Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity 
+              style={[styles.button, styles.confirmButton]}
+              onPress= {handleConfirm}
+              >
+              <Ionicons name="checkmark-circle" size={24} color="#fff" />
+              <Text style={styles.confirmButtonText}>Cook This!</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         {recipe.warnings && (
           <View style={styles.warningBox}>
             <Ionicons name="warning-outline" size={20} color="#FFA500" />
@@ -157,28 +179,6 @@ export default function RecipeDetailScreen() {
           </View>
         )}
 
-        {!isViewMode && (
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={[styles.button, styles.rerollButton]} 
-              onPress={handleReroll}
-              disabled={loading}
-            >
-              <Ionicons name="refresh" size={24} color="#8B4513" />
-              <Text style={styles.rerollButtonText}>
-                {loading ? 'Generating...' : 'Try Another Recipe'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.button, styles.confirmButton]}
-              onPress={handleConfirm}
-            >
-              <Ionicons name="checkmark-circle" size={24} color="#fff" />
-              <Text style={styles.confirmButtonText}>Cook This!</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </ScrollView>
 
       {loading && (
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 20,
     gap: 12,
-    marginBottom: 20,
+    paddingBottom: 40,
   },
   button: {
     flexDirection: 'row',
