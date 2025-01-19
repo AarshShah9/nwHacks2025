@@ -70,12 +70,16 @@ def get_ingredients_from_image(base64_encode):
     print(ingredients)
     return ingredients
 
-def generate_full_recipe_instructions(recipe_header, ingredients, allergies):
+def generate_full_recipe_instructions(ingredients, allergies):
     """
     Uses Google's Gemini API to generate detailed recipe instructions based on the provided recipe header.
     """
-    print(f"Generating full recipe instructions for: {recipe_header.get('recipe_name', 'Unknown Recipe')}...")
+    print(f"Generating full recipe instructions for: ...")
     load_dotenv()
+    ingredient_names = []
+    print(ingredients)
+    for ingred in ingredients:
+        ingredient_names.append(ingred['name'])
 
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -86,7 +90,7 @@ def generate_full_recipe_instructions(recipe_header, ingredients, allergies):
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
     prompt = f"""
-    I want to generate a structured recipe header using the following ingredients: {", ".join(ingredients)}.
+    I want to generate a structured recipe header using the following ingredients: {", ".join(ingredient_names)}.
     You may assume we have common household commodities.
 
     I have the following dietary restrictions: {", ".join(allergies)}. Do not include any of these ingredients in the recipe.
@@ -96,10 +100,11 @@ def generate_full_recipe_instructions(recipe_header, ingredients, allergies):
     {{
     "recipe_name": "your answer",
     "short_description": "your answer",
-    "cooking_time": "your answer",
+    "cooking_time": "your answer, as a number in minutes",
     "difficulty": "Choose from: Easy/Medium/Hard",
-    "ingredients": ["List all required ingredients here"],
-    "instructions": ["Step-by-step cooking instructions"]
+    "ingredients": ["List all required ingredients here, separated by comments"],
+    "instructions": ["Step-by-step cooking instructions, separated by coommas"],
+    "url": "find an image on the internet that matches this recipe well, and put it here"
     }}
 
     Do not include any text outside the JSON format.
@@ -144,9 +149,8 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
 
     This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
 
-    The ingredients and their carbon footprint: {", ".join(ingredient_names)}, {", ".join(ingredient_carbon)}. 
-
-    These are restrictions and diseases I have: {", ".join(([f"- {name}: {carbon}" for name, carbon in zip(ingredient_names, ingredient_carbon)]))}. 
+    The ingredients and their carbon footprint: {", ".join(([f"- {name}: {carbon}" for name, carbon in zip(ingredient_names, ingredient_carbon)]))}. 
+    These are restrictions and diseases I have: {", ".join(restrictions)}, {", ".join(diseases)}.
     
     If they apply to the recipe, mention it and deduct points accordingly.
 
@@ -158,9 +162,9 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     Structure your response in JSON format as follows:
     {{
     "nutritional_values": "your_response_here",
-    "points_response": "your_response_here",
+    "points_response": "your_response_here, as a number",
     "justification_response": "your_response_here, in one sentence",
-    "warnings": "your_response_here" # Include warnings if applicable, or leave as an empty string.
+    "warnings": "your_response_here, Include warnings if applicable from diseases or restrictions, or leave as an empty string."
     }}
     Do not include any text outside the JSON format.
     """
