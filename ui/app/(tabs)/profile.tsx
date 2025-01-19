@@ -37,7 +37,7 @@ export default function ProfileScreen() {
 
   const fetchProfileData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/profile/get');
+      const response = await fetch('http://128.189.228.211:5000/profile/get');
       const data = await response.json();
       setProfileData(data);
     } catch (error) {

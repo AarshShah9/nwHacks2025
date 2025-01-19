@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from database import add_to_inventory, remove_from_inventory, get_inventory, modify_profile, get_profile
 
 app = Flask(__name__)
 CORS(app)
@@ -9,11 +10,23 @@ CORS(app)
     @params: user profile in request.data
     @return: ok
 """
-@app.route('/profile/', methods=['POST'])
-def insert():
+@app.route('/profile/modify', methods=['POST'])
+def modify():
     if request.method == 'POST':
-        # Use algo.py to parse and add to database
-        return 0
+        data = request.data
+        modify_profile(data.name, data.exp, data.allergies, data.restrictions, data.diseases)
+        return "OK", 200
+    else:
+        return error()
+    
+"""
+    Get Profile Endpoint -> GET
+    @return: user profile
+"""
+@app.route('/profile/get', methods=['GET'])
+def get():
+    if request.method == 'GET':
+        return get_profile(), 200
     else:
         return error()
 
@@ -47,4 +60,4 @@ def error():
     return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
