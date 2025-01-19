@@ -15,9 +15,15 @@ CORS(app)
 def profileModify():
     if request.method == 'POST':
         data = request.get_json()
-        restrictions = [token.strip() for token in data.get('restrictions').split(',')]
-        allergies = [token.strip() for token in data.get('allergies').split(',')]
-        diseases = [token.strip() for token in data.get('diseases').split(',')]
+        restrictions = data.get('restrictions')
+        if not isinstance(restrictions, list):
+            restrictions = [token.strip() for token in data.get('restrictions').split(',')]
+        allergies = data.get('allergies')
+        if not isinstance(allergies, list):
+            allergies = [token.strip() for token in data.get('allergies').split(',')]
+        diseases = data.get('diseases')
+        if not isinstance(diseases, list):
+            diseases = [token.strip() for token in data.get('diseases').split(',')]
 
         modify_profile(data.get('name'), data.get('exp'), allergies, 
                        restrictions, diseases)
