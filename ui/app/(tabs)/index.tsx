@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useUser } from '../../context/UserContext';
 
 const QUICK_ACTIONS = [
   { id: 1, icon: 'grid' as keyof typeof Ionicons.glyphMap, label: 'My Fridge', route: '/fridge' },
@@ -36,8 +37,44 @@ const EXERCISES = [
   }
 ];
 
+const TRENDING_RECIPES = [
+  {
+    id: 1,
+    title: 'Veggie Stir Fry',
+    cookTime: '20 min',
+    color: '#FFE0E0',
+    icon: '🥢',
+    animal: '🐯'
+  },
+  {
+    id: 2,
+    title: 'Pasta Carbonara',
+    cookTime: '25 min',
+    color: '#E0F4FF',
+    icon: '🍝',
+    animal: '🦊'
+  },
+  {
+    id: 3,
+    title: 'Berry Smoothie',
+    cookTime: '5 min',
+    color: '#FFE6F5',
+    icon: '🥤',
+    animal: '🐼'
+  }
+];
+
 export default function DiscoverScreen() {
   const router = useRouter();
+  const { profileData, loading } = useUser();
+
+  const getLevel = (exp: number) => {
+    if (exp >= 1000) return 5;
+    if (exp >= 500) return 4;
+    if (exp >= 250) return 3;
+    if (exp >= 100) return 2;
+    return 1;
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -47,11 +84,15 @@ export default function DiscoverScreen() {
       <View style={styles.progressCard}>
         <View style={styles.progressContent}>
           <View style={styles.levelIcon}>
-            <Text style={styles.levelNumber}>4</Text>
+            <Text style={styles.levelNumber}>
+              {loading ? '-' : profileData ? getLevel(profileData.exp) : '1'}
+            </Text>
           </View>
           <View style={styles.progressText}>
-            <Text style={styles.progressTitle}>Welcome back, Aarsh</Text>
-            <Text style={styles.progressSubtitle}>Lets hit our daily goal!</Text>
+            <Text style={styles.progressTitle}>
+              Welcome back, {loading ? '...' : profileData?.name || 'Chef'}
+            </Text>
+            <Text style={styles.progressSubtitle}>Let's hit our daily goal!</Text>
           </View>
         </View>
         <View style={styles.progressBar}>
@@ -103,6 +144,40 @@ export default function DiscoverScreen() {
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.exerciseAnimal}>{exercise.animal}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Trending Recipes Section */}
+      <View style={styles.exerciseSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Trending Recipes</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeMore}>See More →</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.exerciseList}
+        >
+          {TRENDING_RECIPES.map((recipe) => (
+            <TouchableOpacity 
+              key={recipe.id} 
+              style={[styles.exerciseCard, { backgroundColor: recipe.color }]}
+            >
+              <View style={styles.exerciseContent}>
+                <View>
+                  <Text style={styles.exerciseTitle}>{recipe.title}</Text>
+                  <Text style={styles.exerciseSubtitle}>{recipe.cookTime}</Text>
+                  <TouchableOpacity style={styles.letsGoButton}>
+                    <Text style={styles.buttonText}>Cook Now</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.exerciseAnimal}>{recipe.animal}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -194,13 +269,14 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   exerciseSection: {
+    padding: 20,
     paddingHorizontal: 20,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 20,

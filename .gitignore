@@ -133,3 +133,5 @@ dist
 service-account-key.json
 
 __pycache__
+
+./server/myvenv

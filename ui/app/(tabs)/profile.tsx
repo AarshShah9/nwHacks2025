@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useUser } from '../../context/UserContext';
 
 type MenuItem = {
   id: number;
@@ -9,14 +10,6 @@ type MenuItem = {
   icon: keyof typeof Ionicons.glyphMap;
   route?: string;
 };
-
-interface ProfileData {
-  name: string;
-  exp: number;
-  allergies: string[];
-  diseases: string[];
-  restrictions: string[];
-}
 
 const MENU_ITEMS: MenuItem[] = [
     { id: 6, title: 'Cooking Progress', icon: 'trophy-outline', route: '/progress' },
@@ -29,25 +22,11 @@ const MENU_ITEMS: MenuItem[] = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
-    try {
-      const response = await fetch('http://128.189.228.211:5000/profile/get');
-      const data = await response.json();
-      setProfileData(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+  const { profileData, loading } = useUser();
 
   const handleMenuPress = (route?: string) => {
     if (route) {
-      router.push(route as any); // Using type assertion for now
+      router.push(route as any);
     }
   };
 
@@ -68,7 +47,9 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Ionicons name="happy-outline" size={40} color="#333" />
           </View>
-          <Text style={styles.userName}>{profileData?.name || 'Loading...'}</Text>
+          <Text style={styles.userName}>
+            {loading ? 'Loading...' : profileData?.name || 'Guest'}
+          </Text>
         </View>
 
         {/* Stats */}
@@ -76,13 +57,13 @@ export default function ProfileScreen() {
           <View style={styles.statItem}>
             <View style={styles.levelBadge}>
               <Text style={styles.levelText}>
-                {profileData ? getLevel(profileData.exp) : '-'}
+                {loading ? '-' : profileData ? getLevel(profileData.exp) : '1'}
               </Text>
             </View>
             <Text style={styles.statLabel}>Level</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{profileData?.exp || 0}</Text>
+            <Text style={styles.statValue}>{loading ? '-' : profileData?.exp || 0}</Text>
             <Text style={styles.statLabel}>Total Points</Text>
           </View>
         </View>

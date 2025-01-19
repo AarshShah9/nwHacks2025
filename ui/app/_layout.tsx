@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { UserProvider } from '../context/UserContext';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -28,12 +29,38 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <UserProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen 
+            name="leaderboard" 
+            options={{ 
+              headerShown: true,
+              title: 'Top Chefs',
+              headerTintColor: '#8B4513',
+            }} 
+          />
+          <Stack.Screen 
+            name="progress" 
+            options={{ 
+              headerShown: true,
+              title: 'Cooking Progress',
+              headerTintColor: '#8B4513',
+            }} 
+          />
+          <Stack.Screen 
+            name="fridge" 
+            options={{ 
+              headerShown: true,
+              title: 'My Fridge',
+              headerTintColor: '#8B4513',
+            }} 
+          />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </UserProvider>
   );
 }

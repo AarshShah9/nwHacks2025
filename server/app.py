@@ -67,7 +67,7 @@ def insert():
     @return: success
 """
 @app.route('/validate_ingredients', methods=['POST'])
-def insert():
+def validate_ingredients():
     if request.method == 'POST':  
         print("received request")
         ingredients = request.get_json()
