@@ -15,7 +15,7 @@ const IntroPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        Welcome to [App]🌱
+        Welcome to CleanCravings🌱
       </MotiText>
 
       {/* Animated Subtitle */}

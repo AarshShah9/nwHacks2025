@@ -5,7 +5,8 @@ import { MotiText, MotiView } from "moti";
 
 const ConfirmationPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies, preference } = useLocalSearchParams(); // Retrieve parameters passed via navigation
+  const { name, email, allergies, preference, diseases } =
+    useLocalSearchParams(); // Retrieve parameters passed via navigation
 
   const handleSubmit = () => {
     // Navigate to onboarding
@@ -16,6 +17,7 @@ const ConfirmationPage: React.FC = () => {
         email,
         allergies,
         preference,
+        diseases,
       },
     });
   };
@@ -65,7 +67,10 @@ const ConfirmationPage: React.FC = () => {
             {allergies || "Not provided"}
           </MotiText>
         </View>
-
+        <View style={[styles.detailRow, styles.textAlign]}>
+          <MotiText style={styles.label}>Health Conditions:</MotiText>
+          <MotiText style={styles.value}>{diseases || "Not provided"}</MotiText>
+        </View>
         <View style={[styles.detailRow, styles.textAlign]}>
           <MotiText style={styles.label}>Preferences:</MotiText>
           <MotiText style={styles.value}>

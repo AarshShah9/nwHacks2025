@@ -13,6 +13,15 @@ const HealthInfoPage: React.FC = () => {
   const router = useRouter();
   const { name, email } = useLocalSearchParams(); // Retrieve name and email from params
   const [allergies, setAllergies] = useState("");
+  const [diseases, setDiseases] = useState<string[]>([]);
+
+  const toggleDisease = (disease: string) => {
+    if (diseases.includes(disease)) {
+      setDiseases(diseases.filter((d) => d !== disease)); // Remove if already selected
+    } else {
+      setDiseases([...diseases, disease]); // Add if not selected
+    }
+  };
 
   const handleNext = () => {
     router.push({
@@ -21,6 +30,7 @@ const HealthInfoPage: React.FC = () => {
         name: name, // Forward the name
         email: email, // Forward the email
         allergies: allergies, // Add the new data (allergies)
+        diseases: diseases, // Add selected diseases
       },
     });
   };
@@ -47,7 +57,7 @@ const HealthInfoPage: React.FC = () => {
         List any allergies you have below:
       </MotiText>
 
-      {/* Input Field */}
+      {/* Input Field for Allergies */}
       <MotiView
         style={styles.inputContainer}
         from={{ opacity: 0 }}
@@ -63,12 +73,51 @@ const HealthInfoPage: React.FC = () => {
         />
       </MotiView>
 
-      {/* Styled Button */}
+      {/* Disease Selection Section */}
+      <MotiText
+        style={styles.subtitle}
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 800, delay: 1000 }}
+      >
+        Select any applicable conditions:
+      </MotiText>
+      <MotiView
+        style={styles.buttonContainer}
+        from={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: "timing", duration: 800, delay: 1200 }}
+      >
+        {["Diabetes", "Celiac Disease", "High Cholesterol", "Hypertension"].map(
+          (disease) => (
+            <TouchableOpacity
+              key={disease}
+              style={[
+                styles.diseaseButton,
+                diseases.includes(disease) && styles.selectedDiseaseButton,
+              ]}
+              onPress={() => toggleDisease(disease)}
+            >
+              <Text
+                style={[
+                  styles.diseaseButtonText,
+                  diseases.includes(disease) &&
+                    styles.selectedDiseaseButtonText,
+                ]}
+              >
+                {disease}
+              </Text>
+            </TouchableOpacity>
+          )
+        )}
+      </MotiView>
+
+      {/* Styled Next Button */}
       <MotiView
         style={styles.buttonContainer}
         from={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 800, delay: 1200 }}
+        transition={{ type: "timing", duration: 800, delay: 1400 }}
       >
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>Next: Dietary Preferences</Text>
@@ -83,21 +132,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#c8e6c9", // Same background as registration.tsx
+    backgroundColor: "#c8e6c9",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "right", // Align title to the right
-    color: "#5C4033", // Earthy brown for title
+    textAlign: "right",
+    color: "#5C4033",
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 30,
-    textAlign: "right", // Align subtitle to the right
-    color: "#5C4033", // Earthy brown for subtitle
-    lineHeight: 24,
+    marginBottom: 20,
+    textAlign: "right",
+    color: "#5C4033",
   },
   inputContainer: {
     marginBottom: 20,
@@ -105,24 +153,43 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderBottomWidth: 1,
-    borderBottomColor: "#A0522D", // Muted earthy brown underline
+    borderBottomColor: "#A0522D",
     paddingVertical: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#4B2E2A", // Rich brown text color
+    color: "#4B2E2A",
   },
   buttonContainer: {
-    alignSelf: "flex-end", // Align button container to the right
+    marginBottom: 20,
+  },
+  diseaseButton: {
+    backgroundColor: "#9FE2BF",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  selectedDiseaseButton: {
+    backgroundColor: "#228B22",
+  },
+  diseaseButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  selectedDiseaseButtonText: {
+    color: "#F5F5DC",
   },
   button: {
-    backgroundColor: "#D2B48C", // Earthy brown button color
+    backgroundColor: "#D2B48C",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: "center",
   },
   buttonText: {
-    color: "#4B2E2A", // White text for contrast
+    color: "#4B2E2A",
     fontSize: 16,
     fontWeight: "bold",
   },
