@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../constants/api';
 import { useRouter } from 'expo-router';
+import { FlashList } from '@shopify/flash-list';
 
 interface Recipe {
   recipe_name: string;
@@ -21,15 +22,11 @@ export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    fetchRecipes();
-  }, []);
 
   const fetchRecipes = async () => {
     try {
-      setLoading(true);
       const response = await fetch(`${API_URL}/recipes/get`);
       if (!response.ok) {
         throw new Error('Failed to fetch recipes');
@@ -38,9 +35,17 @@ export default function RecipesScreen() {
       setRecipes(data.recipes);
     } catch (error) {
       console.error('Error fetching recipes:', error);
-    } finally {
-      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchRecipes().finally(() => setLoading(false));
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchRecipes();
+    setRefreshing(false);
   };
 
   const handleGenerateRecipe = async () => {
@@ -66,6 +71,38 @@ export default function RecipesScreen() {
     }
   };
 
+  const renderRecipeCard = ({ item: recipe, index }: { item: Recipe; index: number }) => (
+    <TouchableOpacity 
+      style={styles.recipeCard}
+      onPress={() => router.push({
+        pathname: '/recipe/[id]',
+        params: { 
+          id: index.toString(),
+          recipe: JSON.stringify(recipe),
+          mode: 'view'
+        }
+      })}
+    >
+      <View style={styles.recipeHeader}>
+        <Text style={styles.recipeName}>{recipe.recipe_name}</Text>
+        <View style={styles.recipeMetrics}>
+          <View style={styles.metric}>
+            <Ionicons name="time-outline" size={16} color="#666" />
+            <Text style={styles.metricText}>{recipe.cooking_time}</Text>
+          </View>
+          <View style={styles.metric}>
+            <Ionicons name="trophy-outline" size={16} color="#666" />
+            <Text style={styles.metricText}>{recipe.points_response} pts</Text>
+          </View>
+        </View>
+      </View>
+      <Text style={styles.recipeDescription}>{recipe.short_description}</Text>
+      <View style={styles.difficultyBadge}>
+        <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   if (loading || generating) {
     return (
       <View style={styles.loadingContainer}>
@@ -78,7 +115,7 @@ export default function RecipesScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Your Recipes</Text>
         <TouchableOpacity 
@@ -96,42 +133,16 @@ export default function RecipesScreen() {
           <Text style={styles.emptySubText}>Generate your first recipe!</Text>
         </View>
       ) : (
-        <View style={styles.recipesContainer}>
-          {recipes.map((recipe, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.recipeCard}
-              onPress={() => router.push({
-                pathname: '/recipe/[id]',
-                params: { 
-                  id: index.toString(),
-                  recipe: JSON.stringify(recipe),
-                  mode: 'view'
-                }
-              })}
-            >
-              <View style={styles.recipeHeader}>
-                <Text style={styles.recipeName}>{recipe.recipe_name}</Text>
-                <View style={styles.recipeMetrics}>
-                  <View style={styles.metric}>
-                    <Ionicons name="time-outline" size={16} color="#666" />
-                    <Text style={styles.metricText}>{recipe.cooking_time}</Text>
-                  </View>
-                  <View style={styles.metric}>
-                    <Ionicons name="trophy-outline" size={16} color="#666" />
-                    <Text style={styles.metricText}>{recipe.points_response} pts</Text>
-                  </View>
-                </View>
-              </View>
-              <Text style={styles.recipeDescription}>{recipe.short_description}</Text>
-              <View style={styles.difficultyBadge}>
-                <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <FlashList
+          data={recipes}
+          renderItem={renderRecipeCard}
+          estimatedItemSize={200}
+          contentContainerStyle={styles.recipesContainer}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
+        />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
