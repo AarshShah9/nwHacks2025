@@ -156,7 +156,7 @@ def generate_full_recipe_instructions(ingredients, restrictions, allergies):
 
     I have the following dietary restrictions: {", ".join(allergies)}, {", ".join(restrictions)}. Do not generate any recipes that include these.
 
-    Structure the response in JSON format as given
+    Structure the response in JSON format as given. The response is directly shown to end users so do not include any information about prompting.
     """
 
     response = model.generate_content(prompt, generation_config=generation_config)
@@ -197,7 +197,7 @@ def assess_points_from_recipe_header(recipe, diseases):
         "properties": {
             "nutritional_values": {
                 "type": "string",
-                "description": "The nutritional information as a string: calories, fats, proteins, carbs, etc."
+                "description": "The nutritional information as a string: calories, fats, proteins, carbs. Do not include anything else and do not format your text in anyway such as bolding."
             },
             "carbon_footprint": {
                 "type": "number",
@@ -209,11 +209,11 @@ def assess_points_from_recipe_header(recipe, diseases):
             },
             "justification_response": {
                 "type": "string",
-                "description": "A textual breakdown or reasoning, using the given categories"
+                "description": "A textual breakdown or reasoning, using the given categories. Keep to around 150 words."
             },
             "warnings": {
                 "type": "string",
-                "description": "Warnings or alerts as a string."
+                "description": "Warnings or alerts as a string, keep it emtpty if there are none"
             }
         },
         "required": ["nutritional_values", "points_response", "justification_response"]
@@ -222,7 +222,7 @@ def assess_points_from_recipe_header(recipe, diseases):
 
     # Define the prompt template directly
     prompt = f"""
-    Based upon the recipe header, I want to assess the recipe with a points system based upon its nutritional value and carbon footprint.
+    Based upon the recipe, I want to assess the recipe with a points system based upon its nutritional value and carbon footprint.
     Use real and accurate nutritional values and carbon footprint values to the best of your abilities based on the recipe name and description.
 
     This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
@@ -236,7 +236,10 @@ def assess_points_from_recipe_header(recipe, diseases):
     - Real nutritional values, and healthiness of the recipe/food
     - Carbon footprint values
     - Deductions for diseases and restrictions violated 
-    Structure your response in JSON format as given.
+    Keep your justification to around 50 words. 
+    Keep your warnings short, and do not include warnings if not applicable.
+    Nutritional values should be limited to and formatted as: Calories: (value), Fat: (value), Proteins: (value), Carbohydrates: (value),
+    Structure your response in JSON format as given. The response is directly shown to end users so do not include any information about prompting.
     """
     response = model.generate_content(prompt, generation_config=generation_config)
     candidates = response.candidates  # or whatever method is provided
