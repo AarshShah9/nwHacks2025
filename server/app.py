@@ -86,6 +86,20 @@ def ingredientsValidate():
 
     else:
         return error()
+
+"""
+    Delete Ingredient Endpoint -> POST
+    @param: ingredient name
+"""
+@app.route('/ingredients/delete', methods=['POST'])
+def ingredientsDelete():
+    if request.method == 'POST':
+        data = request.get_json()
+        name = data.get_json('name')
+        remove_from_inventory(name, 999999)
+        return 200
+    else:
+        return error()
     
 """
     Generate Recipe Endpoint -> GET
@@ -116,15 +130,8 @@ def recipesGenerate():
         # }}
         points_parsed = json.loads(points_analysis)        # format:
         print("recipe info", points_parsed)
-        new_points = int(points_parsed["points_response"])
-
-        # for now, adding points here 
-        modify_profile(profile['name'], profile['exp'] + new_points, profile['allergies'], 
-                       profile['restrictions'], profile['restrictions'])
+        
         recipe_info = {**recipe_parsed, **points_parsed}
-
-        add_to_recipes(recipe_info['recipe_name'], recipe_info['short_description'], recipe_info['cooking_time'], recipe_info['difficulty'],  recipe_info['ingredients'], recipe_info['instructions'], "",
-                       recipe_info['nutritional_values'], recipe_info['points_response'], recipe_info['justification_response'], recipe_info['warnings'])
 
         return recipe_info, 200
     else:
@@ -137,9 +144,17 @@ def recipesGenerate():
 @app.route('/recipes/confirm', methods=['POST'])
 def recipesConfirm():
     if request.method == 'POST':
-        ingredients = request.get_json()
+        profile = get_profile()
+        data = request.get_json()
+        recipe_info = data.get_json('recipe')
+        new_points = int(recipe_info['points_response'])
+        ingredients = []
         for ingred in ingredients:
             remove_from_inventory(ingred['name'], ingred['count'])
+        modify_profile(profile['name'], profile['exp'] + new_points, profile['allergies'], 
+                       profile['restrictions'], profile['restrictions'])
+        add_to_recipes(recipe_info['recipe_name'], recipe_info['short_description'], recipe_info['cooking_time'], recipe_info['difficulty'],  recipe_info['ingredients'], recipe_info['instructions'], "",
+                       recipe_info['nutritional_values'], recipe_info['points_response'], recipe_info['justification_response'], recipe_info['warnings'])
         return 200
     else:
         return error()
@@ -155,7 +170,6 @@ def recipesGet():
         return get_recipes(), 200
     else:
         return error()
-
 
 def error():
     return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
