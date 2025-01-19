@@ -5,9 +5,6 @@ def test1():
     print(get_profile())
 
 def test2():
-    add_to_inventory("beef", 2, "raw")
-    add_to_inventory("onion", 2, "raw")
-    remove_from_inventory("onion", 1)
     print(get_inventory())
 
 if __name__ == '__main__':

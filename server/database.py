@@ -8,14 +8,31 @@ db = firestore.client()
 
 '''
     Add to 'inventory' collection
-    @params: name, amount, foodType
+    @params: name, amount, units, expiry, carbonImpact
 '''
-def add_to_inventory(name, amount, foodType):
+def add_to_inventory(name, count, units, expiry, carbon_footprint):
     inventory_ref = db.collection('inventory')
     inventory_ref = inventory_ref.document(name)
     inventory_ref.set({
-        'amount': amount,
-        'type': foodType
+        'count': count,
+        'units': units,
+        'expiry': expiry,
+        'carbon_footprint': carbon_footprint
+    })
+    print("%s added to inventory" % (name))
+
+'''
+    Add to 'recipe' collection
+    @params: name, amount, units, expiry, carbonImpact
+'''
+def add_to_recipe(name, count, units, expiry, carbon_footprint):
+    inventory_ref = db.collection('recipes')
+    inventory_ref = inventory_ref.document(name)
+    inventory_ref.set({
+        'count': count,
+        'units': units,
+        'expiry': expiry,
+        'carbon_footprint': carbon_footprint
     })
     print("%s added to inventory" % (name))
 
@@ -39,10 +56,12 @@ def remove_from_inventory(name, amount):
 def get_inventory():
     inventory_ref = db.collection('inventory')
     docs = inventory_ref.stream()
-    ret = {}
+    ret = {"ingredients": []}
 
     for doc in docs:
-        ret[doc.id] = doc.to_dict() 
+        cur = doc.to_dict()
+        cur['name'] = doc.id
+        ret['ingredients'].append(cur)
 
     return ret
 
