@@ -5,7 +5,7 @@ import { MotiText, MotiView } from "moti";
 
 const PreferencesPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies, diseases } = useLocalSearchParams();
+  const { name, allergies, diseases } = useLocalSearchParams();
   const [preference, setPreference] = useState("");
 
   const handleNext = () => {
@@ -14,10 +14,9 @@ const PreferencesPage: React.FC = () => {
       pathname: "/registration/confirmation",
       params: {
         name: name, // Forward the name
-        email: email, // Forward the email
-        allergies: allergies, // Add the new data (allergies)
-        preference: preference,
-        diseases: diseases, // Add the selected preference
+        allergies: allergies, // Keep allergies as a parameter
+        restrictions: preference, // Set dietary preference as 'restrictions'
+        diseases: diseases, // Keep diseases as a parameter
       },
     });
   };
@@ -31,7 +30,7 @@ const PreferencesPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        What Are Your Dietary Preferences?🥕
+        What Are Your Dietary Preferences? 🥕
       </MotiText>
 
       {/* Animated Subtitle */}
