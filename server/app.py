@@ -15,8 +15,12 @@ CORS(app)
 def profileModify():
     if request.method == 'POST':
         data = request.get_json()
-        modify_profile(data.get('name'), data.get('exp'), data.get('allergies'), 
-                       data.get('restrictions'), data.get('diseases'))
+        restrictions = [token.strip() for token in data.get('restrictions').split(',')]
+        allergies = [token.strip() for token in data.get('allergies').split(',')]
+        diseases = [token.strip() for token in data.get('diseases').split(',')]
+
+        modify_profile(data.get('name'), data.get('exp'), allergies, 
+                       restrictions, diseases)
         return "OK", 200
     else:
         return error()
@@ -94,7 +98,8 @@ def recipesGenerate():
         #     "cooking_time": "your answer",
         #     "difficulty": "Choose from: Easy/Medium/Hard",
         #     "ingredients": ["List all required ingredients here"],
-        #     "instructions": ["Step-by-step cooking instructions"]
+        #     "instructions": ["Step-by-step cooking instructions"],
+        #      "url" : "dhdhj"
         # }}
         points_analysis = assess_points_from_recipe_header(recipe, profile['restrictions'], profile['diseases'])
         # format:     {{
@@ -118,6 +123,20 @@ def recipesGenerate():
     else:
         return error()
 
+"""
+    Confirm Recipes Endpoint -> POST
+    @param: ingredients list
+"""
+@app.route('/recipes/confirm', methods=['POST'])
+def recipesConfirm():
+    if request.method == 'POST':
+        ingredients = request.get_json()
+        for ingred in ingredients:
+            remove_from_inventory(ingred['name'], ingred['count'])
+        return 200
+    else:
+        return error()
+
 
 """
     Get Recipes Endpoint -> GET
@@ -129,6 +148,8 @@ def recipesGet():
         return get_recipes(), 200
     else:
         return error()
+    
+
 
 def error():
     return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
