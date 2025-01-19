@@ -19,7 +19,7 @@ const RegistrationPage: React.FC = () => {
 
   const handleNext = () => {
     router.push({
-      pathname: "/registration/health",
+      pathname: "/health",
       params: {
         name: name, // Pass the entered name
       },

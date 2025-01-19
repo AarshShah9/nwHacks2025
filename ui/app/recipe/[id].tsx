@@ -1,73 +1,56 @@
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { API_URL } from '../../constants/api';
+import { useState } from 'react';
 
-// Using the same mock data from recipes.tsx
-const MOCK_RECIPES = [
-  {
-    id: '1',
-    name: 'Classic Spaghetti Carbonara',
-    time: '30 mins',
-    difficulty: 'Medium',
-    imageUrl: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?q=80&w=200',
-    ingredients: [
-      '400g spaghetti',
-      '200g pancetta',
-      '4 large eggs',
-      '100g Pecorino Romano',
-      'Black pepper'
-    ],
-    instructions: [
-      'Cook pasta in salted water',
-      'Fry pancetta until crispy',
-      'Mix eggs and cheese',
-      'Combine all ingredients'
-    ]
-  },
-  {
-    id: '2',
-    name: 'Chicken Stir Fry',
-    time: '25 mins',
-    difficulty: 'Easy',
-    imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?q=80&w=200',
-    ingredients: [
-      '500g chicken breast',
-      'Mixed vegetables',
-      'Soy sauce',
-      'Ginger',
-      'Garlic'
-    ],
-    instructions: [
-      'Cut chicken into strips',
-      'Stir fry vegetables',
-      'Add chicken and sauce',
-      'Cook until done'
-    ]
-  },
-  {
-    id: '3',
-    name: 'Vegetarian Buddha Bowl',
-    time: '40 mins',
-    difficulty: 'Easy',
-    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=200',
-    ingredients: [
-      'Quinoa',
-      'Roasted chickpeas',
-      'Avocado',
-      'Sweet potato',
-      'Kale'
-    ],
-    instructions: [
-      'Cook quinoa',
-      'Roast vegetables',
-      'Prepare dressing',
-      'Assemble bowl'
-    ]
-  }
-];
+interface RecipeDetailProps {
+  recipe_name: string;
+  short_description: string;
+  cooking_time: string;
+  difficulty: string;
+  ingredients: string[];
+  instructions: string[];
+  nutritional_values: string;
+  points_response: string;
+  justification_response: string;
+  warnings: string;
+}
 
-export default function RecipeDetail() {
-  const { id } = useLocalSearchParams();
-  const recipe = MOCK_RECIPES.find(r => r.id === id);
+export default function RecipeDetailScreen() {
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
+  const isViewMode = params.mode === 'view';
+
+  const handleReroll = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/recipes/generate`);
+      if (!response.ok) {
+        throw new Error('Failed to generate recipe');
+      }
+      const newRecipe = await response.json();
+      // Update the current screen with new recipe data
+      router.replace({
+        pathname: '/recipe/[id]',
+        params: { 
+          id: Date.now().toString(),
+          recipe: JSON.stringify(newRecipe)
+        }
+      });
+    } catch (error) {
+      console.error('Error generating new recipe:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirm = () => {
+    console.log('Recipe confirmed:', recipe);
+    router.back();
+  };
 
   if (!recipe) {
     return (
@@ -78,30 +61,74 @@ export default function RecipeDetail() {
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      bounces={false}
-      overScrollMode="never"
-      showsVerticalScrollIndicator={false}
-    >
-      <Image source={{ uri: recipe.imageUrl }} style={styles.image} />
-      <View style={styles.content}>
-        <Text style={styles.title}>{recipe.name}</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{recipe.recipe_name}</Text>
         <View style={styles.metaInfo}>
-          <Text style={styles.meta}>⏱ {recipe.time}</Text>
-          <Text style={styles.meta}>📊 {recipe.difficulty}</Text>
+          <View style={styles.metaItem}>
+            <Ionicons name="time-outline" size={20} color="#666" />
+            <Text style={styles.metaText}>{recipe.cooking_time}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Ionicons name="trophy-outline" size={20} color="#666" />
+            <Text style={styles.metaText}>{recipe.points_response} pts</Text>
+          </View>
+          <View style={styles.difficultyBadge}>
+            <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
+          </View>
         </View>
+      </View>
 
+      <Text style={styles.description}>{recipe.short_description}</Text>
+
+      {recipe.warnings && (
+        <View style={styles.warningBox}>
+          <Ionicons name="warning-outline" size={20} color="#FFA500" />
+          <Text style={styles.warningText}>{recipe.warnings}</Text>
+        </View>
+      )}
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         {recipe.ingredients.map((ingredient, index) => (
           <Text key={index} style={styles.listItem}>• {ingredient}</Text>
         ))}
+      </View>
 
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Instructions</Text>
         {recipe.instructions.map((instruction, index) => (
           <Text key={index} style={styles.listItem}>{index + 1}. {instruction}</Text>
         ))}
       </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Nutritional Information</Text>
+        <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
+      </View>
+
+      {!isViewMode && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[styles.button, styles.rerollButton]} 
+            onPress={handleReroll}
+            disabled={loading}
+          >
+            <Ionicons name="refresh" size={24} color="#8B4513" />
+            <Text style={styles.rerollButtonText}>
+              {loading ? 'Generating...' : 'Try Another Recipe'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.button, styles.confirmButton]}
+            onPress={handleConfirm}
+          >
+            <Ionicons name="checkmark-circle" size={24} color="#fff" />
+            <Text style={styles.confirmButtonText}>Cook This!</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -111,36 +138,110 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  image: {
-    width: '100%',
-    height: 300,
-  },
-  content: {
+  header: {
     padding: 20,
+    paddingTop: 40,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#333',
+    marginBottom: 12,
   },
   metaInfo: {
     flexDirection: 'row',
-    gap: 15,
-    marginBottom: 20,
+    alignItems: 'center',
+    gap: 16,
   },
-  meta: {
-    color: '#666',
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
     fontSize: 16,
+    color: '#666',
+  },
+  difficultyBadge: {
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  difficultyText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  description: {
+    fontSize: 16,
+    color: '#666',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    lineHeight: 24,
+  },
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    margin: 20,
+    padding: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  warningText: {
+    flex: 1,
+    color: '#F57C00',
+    fontSize: 14,
+  },
+  section: {
+    padding: 20,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
   },
   listItem: {
     fontSize: 16,
+    color: '#666',
     marginBottom: 8,
     lineHeight: 24,
+  },
+  nutritionalText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
+  },
+  buttonContainer: {
+    padding: 20,
+    gap: 12,
+    marginBottom: 20,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 8,
+    gap: 8,
+  },
+  rerollButton: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#8B4513',
+  },
+  confirmButton: {
+    backgroundColor: '#8B4513',
+  },
+  rerollButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8B4513',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 }); 

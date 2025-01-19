@@ -11,7 +11,7 @@ const PreferencesPage: React.FC = () => {
   const handleNext = () => {
     console.log(preference);
     router.push({
-      pathname: "/registration/confirmation",
+      pathname: "/confirmation",
       params: {
         name: name, // Forward the name
         allergies: allergies, // Keep allergies as a parameter

@@ -1,117 +1,147 @@
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { API_URL } from '../../constants/api';
 import { useRouter } from 'expo-router';
+import { FlashList } from '@shopify/flash-list';
 
 interface Recipe {
-  id: string;
-  name: string;
-  time: string;
+  recipe_name: string;
+  short_description: string;
+  cooking_time: string;
   difficulty: string;
-  imageUrl: string;
   ingredients: string[];
   instructions: string[];
+  nutritional_values: string;
+  points_response: string;
+  justification_response: string;
+  warnings: string;
 }
 
-// Mock data for recipes
-const MOCK_RECIPES: Recipe[] = [
-  {
-    id: '1',
-    name: 'Classic Spaghetti Carbonara',
-    time: '30 mins',
-    difficulty: 'Medium',
-    imageUrl: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?q=80&w=200',
-    ingredients: [
-      '400g spaghetti',
-      '200g pancetta',
-      '4 large eggs',
-      '100g Pecorino Romano',
-      'Black pepper'
-    ],
-    instructions: [
-      'Cook pasta in salted water',
-      'Fry pancetta until crispy',
-      'Mix eggs and cheese',
-      'Combine all ingredients'
-    ]
-  },
-  {
-    id: '2',
-    name: 'Chicken Stir Fry',
-    time: '25 mins',
-    difficulty: 'Easy',
-    imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?q=80&w=200',
-    ingredients: [
-      '500g chicken breast',
-      'Mixed vegetables',
-      'Soy sauce',
-      'Ginger',
-      'Garlic'
-    ],
-    instructions: [
-      'Cut chicken into strips',
-      'Stir fry vegetables',
-      'Add chicken and sauce',
-      'Cook until done'
-    ]
-  },
-  {
-    id: '3',
-    name: 'Vegetarian Buddha Bowl',
-    time: '40 mins',
-    difficulty: 'Easy',
-    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=200',
-    ingredients: [
-      'Quinoa',
-      'Roasted chickpeas',
-      'Avocado',
-      'Sweet potato',
-      'Kale'
-    ],
-    instructions: [
-      'Cook quinoa',
-      'Roast vegetables',
-      'Prepare dressing',
-      'Assemble bowl'
-    ]
-  }
-];
-
 export default function RecipesScreen() {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
-  const renderRecipeCard = ({ item }: { item: Recipe }) => (
+  const fetchRecipes = async () => {
+    try {
+      const response = await fetch(`${API_URL}/recipes/get`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recipes');
+      }
+      const data = await response.json();
+      setRecipes(data.recipes);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipes().finally(() => setLoading(false));
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchRecipes();
+    setRefreshing(false);
+  };
+
+  const handleGenerateRecipe = async () => {
+    try {
+      setGenerating(true);
+      const response = await fetch(`${API_URL}/recipes/generate`);
+      if (!response.ok) {
+        throw new Error('Failed to generate recipe');
+      }
+      const recipe = await response.json();
+      // Navigate to recipe detail screen with the generated recipe
+      router.push({
+        pathname: '/recipe/[id]',
+        params: { 
+          id: Date.now().toString(),
+          recipe: JSON.stringify(recipe)
+        }
+      });
+    } catch (error) {
+      console.error('Error generating recipe:', error);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const renderRecipeCard = ({ item: recipe, index }: { item: Recipe; index: number }) => (
     <TouchableOpacity 
-      style={styles.card}
+      style={styles.recipeCard}
       onPress={() => router.push({
         pathname: '/recipe/[id]',
-        params: { id: item.id }
+        params: { 
+          id: index.toString(),
+          recipe: JSON.stringify(recipe),
+          mode: 'view'
+        }
       })}
     >
-      <Image 
-        source={{ uri: item.imageUrl }} 
-        style={styles.image}
-      />
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.name}</Text>
-        <View style={styles.metaInfo}>
-          <Text style={styles.meta}>⏱ {item.time}</Text>
-          <Text style={styles.meta}>📊 {item.difficulty}</Text>
+      <View style={styles.recipeHeader}>
+        <Text style={styles.recipeName}>{recipe.recipe_name}</Text>
+        <View style={styles.recipeMetrics}>
+          <View style={styles.metric}>
+            <Ionicons name="time-outline" size={16} color="#666" />
+            <Text style={styles.metricText}>{recipe.cooking_time}</Text>
+          </View>
+          <View style={styles.metric}>
+            <Ionicons name="trophy-outline" size={16} color="#666" />
+            <Text style={styles.metricText}>{recipe.points_response} pts</Text>
+          </View>
         </View>
+      </View>
+      <Text style={styles.recipeDescription}>{recipe.short_description}</Text>
+      <View style={styles.difficultyBadge}>
+        <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
       </View>
     </TouchableOpacity>
   );
 
+  if (loading || generating) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.loadingText}>
+          {generating ? 'Generating your recipe...' : 'Loading recipes...'}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Recipes</Text>
-      <FlatList
-        data={MOCK_RECIPES}
-        renderItem={renderRecipeCard}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-        bounces={false}
-        overScrollMode="never"
-        showsVerticalScrollIndicator={false}
-      />
+      <View style={styles.header}>
+        <Text style={styles.title}>Your Recipes</Text>
+        <TouchableOpacity 
+          style={styles.generateButton}
+          onPress={handleGenerateRecipe}
+        >
+          <Ionicons name="add-circle-outline" size={24} color="#fff" />
+          <Text style={styles.generateButtonText}>Generate New Recipe</Text>
+        </TouchableOpacity>
+      </View>
+
+      {recipes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No recipes available</Text>
+          <Text style={styles.emptySubText}>Generate your first recipe!</Text>
+        </View>
+      ) : (
+        <FlashList
+          data={recipes}
+          renderItem={renderRecipeCard}
+          estimatedItemSize={200}
+          contentContainerStyle={styles.recipesContainer}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
+        />
+      )}
     </View>
   );
 }
@@ -120,51 +150,107 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 60,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
   header: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  list: {
     padding: 20,
-  },
-  card: {
+    paddingTop: 40,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-  },
-  cardContent: {
-    padding: 15,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  generateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#8B4513',
+    padding: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  generateButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  recipesContainer: {
+    padding: 20,
+  },
+  recipeCard: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  recipeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
-  metaInfo: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: 15,
+  recipeName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+    marginRight: 8,
   },
-  meta: {
-    color: '#666',
+  recipeMetrics: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  metric: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metricText: {
     fontSize: 14,
+    color: '#666',
+  },
+  recipeDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+  },
+  difficultyBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  difficultyText: {
+    fontSize: 12,
+    color: '#333',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 60,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 8,
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: '#999',
   },
 }); 

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { useUser } from '../context/UserContext';
 import { useState } from 'react';
+import { API_URL } from '../constants/api';
 
 export default function ProfileSettingsScreen() {
   const { profileData, setProfileData, fetchProfileData } = useUser();
@@ -15,7 +16,7 @@ export default function ProfileSettingsScreen() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://128.189.228.211:5000/profile/modify', {
+      const response = await fetch(`${API_URL}/profile/modify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

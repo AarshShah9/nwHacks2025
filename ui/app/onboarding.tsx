@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { MotiText, MotiView } from "moti";
+import { API_URL } from "@/constants/api";
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter();
@@ -27,7 +28,7 @@ const OnboardingPage: React.FC = () => {
       };
 
       // Make the POST request to the backend
-      const response = await fetch("http://127.0.0.1:5000/profile/modify", {
+      const response = await fetch(`${API_URL}/profile/modify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

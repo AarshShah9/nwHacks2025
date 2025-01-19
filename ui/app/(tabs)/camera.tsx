@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View, Text, ActivityIndicator, TextInput, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { API_URL } from '../../constants/api';
 
 interface Ingredient {
   name: string;
@@ -23,7 +24,7 @@ export default function ImagePickerScreen() {
     setLoadingMessage('Processing image...');
     setLoading(true);
     try {
-      const response = await fetch('http://128.189.228.211:5000/ingredients/scan', {
+      const response = await fetch(`${API_URL}/ingredients/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +77,7 @@ export default function ImagePickerScreen() {
     setLoadingMessage('Adding ingredients...');
     setLoading(true);
     try {
-      const response = await fetch('http://128.189.228.211:5000/ingredients/validate', {
+      const response = await fetch(`${API_URL}/ingredients/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

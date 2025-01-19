@@ -25,7 +25,7 @@ const HealthInfoPage: React.FC = () => {
 
   const handleNext = () => {
     router.push({
-      pathname: "/registration/preferences",
+      pathname: "/preferences",
       params: {
         name: name, // Forward the name
         allergies: allergies, // Add the new data (allergies)

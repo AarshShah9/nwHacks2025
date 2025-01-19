@@ -10,7 +10,7 @@ const ConfirmationPage: React.FC = () => {
   const handleSubmit = () => {
     // Navigate to onboarding
     router.push({
-      pathname: "/registration/onboarding",
+      pathname: "/onboarding",
       params: {
         name,
         allergies,

@@ -37,7 +37,7 @@ const IntroPage: React.FC = () => {
       >
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/registration/userbasic")}
+          onPress={() => router.push("/userbasic")}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>

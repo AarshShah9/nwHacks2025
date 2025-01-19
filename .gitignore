@@ -135,3 +135,4 @@ service-account-key.json
 __pycache__
 
 /server/myenv
+/.idea/*
