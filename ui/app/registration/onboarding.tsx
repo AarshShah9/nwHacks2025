@@ -10,7 +10,8 @@ import { MotiText, MotiView } from "moti";
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies, preference } = useLocalSearchParams();
+  const { name, email, allergies, diseases, preference } =
+    useLocalSearchParams();
   const [loading, setLoading] = useState(false);
 
   const handleGetStarted = () => {
@@ -23,6 +24,7 @@ const OnboardingPage: React.FC = () => {
         email,
         allergies,
         preference,
+        diseases,
       });
 
       // Navigate to onboarding after loading
@@ -33,6 +35,7 @@ const OnboardingPage: React.FC = () => {
           email,
           allergies,
           preference,
+          diseases,
         },
       });
 

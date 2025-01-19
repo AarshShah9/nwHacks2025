@@ -5,7 +5,7 @@ import { MotiText, MotiView } from "moti";
 
 const PreferencesPage: React.FC = () => {
   const router = useRouter();
-  const { name, email, allergies } = useLocalSearchParams();
+  const { name, email, allergies, diseases } = useLocalSearchParams();
   const [preference, setPreference] = useState("");
 
   const handleNext = () => {
@@ -16,7 +16,8 @@ const PreferencesPage: React.FC = () => {
         name: name, // Forward the name
         email: email, // Forward the email
         allergies: allergies, // Add the new data (allergies)
-        preference: preference, // Add the selected preference
+        preference: preference,
+        diseases: diseases, // Add the selected preference
       },
     });
   };
