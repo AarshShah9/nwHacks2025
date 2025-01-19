@@ -145,6 +145,7 @@ def generate_full_recipe_instructions(recipe_header):
     "recipe_name": "{recipe_header.get('recipe_name', '')}",
     "short_description": "{recipe_header.get('short_description', '')}",
     "cooking_time": "{recipe_header.get('cooking_time', '')}",
+    "difficulty": "Choose from: Easy/Medium/Hard",
     "ingredients": ["List all required ingredients here"],
     "instructions": ["Step-by-step cooking instructions"]
     }}
@@ -267,7 +268,6 @@ def test_full_recipe_generation():
     if recipe_header:
         full_recipe = generate_full_recipe_instructions(recipe_header)
         print(full_recipe)
-
 
 
 def parse_json_response(response_text):
