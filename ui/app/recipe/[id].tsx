@@ -33,7 +33,8 @@ export default function RecipeDetailScreen() {
   const [loading, setLoading] = useState(false);
   const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
   const isViewMode = params.mode === 'view';
-
+  
+console.log(recipe);
   const handleReroll = async () => {
     try {
       setLoading(true);
@@ -136,6 +137,11 @@ export default function RecipeDetailScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Nutritional Information</Text>
         <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Recipe Analysis</Text>
+        <Text style={styles.justificationText}>{recipe.justification_response}</Text>
       </View>
 
       {recipe.carbon_footprint && (
@@ -250,6 +256,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     lineHeight: 24,
+  },
+  justificationText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
+    textAlign: 'justify',
   },
   buttonContainer: {
     padding: 20,
