@@ -2,4 +2,3 @@ streamlit
 google-generativeai
 pillow
 flask
-python-dotenv
