@@ -18,14 +18,14 @@ We began with many feature ideas, including options to share recipes with friend
 
 1. `cd server`
 2. `python -m venv myenv` or appropiate method depending on your OS
-3. ` source ./myenv/activate`
+3. `source ./myenv/activate`
 4. `pip install -r requirements.txt`
 5. Get credentials and API keys
-6. ` python app.py`
+6. `python app.py`
 
 ### Testing Frontend
 
-1. ` cd ui`
+1. `cd ui`
 2. `npm i`
 3. `npm run build`
 4. `npx expo start`
