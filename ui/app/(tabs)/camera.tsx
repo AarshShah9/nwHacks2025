@@ -38,7 +38,6 @@ export default function ImagePickerScreen() {
       }
 
       const data = await response.json(); 
-      console.log(data);
       setIngredients(data.ingredients);
       setShowForm(true);
     } catch (error) {
