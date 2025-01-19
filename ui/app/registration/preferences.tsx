@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, Button, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Button, TouchableOpacity, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { MotiText, MotiView } from "moti";
 
 const PreferencesPage: React.FC = () => {
   const router = useRouter();
@@ -22,54 +23,63 @@ const PreferencesPage: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>What Are Your Dietary Preferences?</Text>
-      <Text style={styles.subtitle}>
+      {/* Animated Title */}
+      <MotiText
+        style={styles.title}
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 800 }}
+      >
+        What Are Your Dietary Preferences?
+      </MotiText>
+
+      {/* Animated Subtitle */}
+      <MotiText
+        style={styles.subtitle}
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 800, delay: 400 }}
+      >
         We’ll help you avoid foods that don’t work for you.
-      </Text>
+      </MotiText>
 
-      {/* Buttons with dynamic styles */}
-      <TouchableOpacity
-        style={[
-          styles.preferenceButton,
-          preference === "Vegan" && styles.selectedButton,
-        ]}
-        onPress={() => setPreference("Vegan")}
+      {/* Animated Buttons */}
+      <MotiView
+        style={styles.buttonContainer}
+        from={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: "timing", duration: 800, delay: 800 }}
       >
-        <Text style={styles.buttonText}>Vegan</Text>
-      </TouchableOpacity>
+        {["Vegan", "Vegetarian", "Halal", "Kosher"].map((diet) => (
+          <TouchableOpacity
+            key={diet}
+            style={[
+              styles.preferenceButton,
+              preference === diet && styles.selectedButton,
+            ]}
+            onPress={() => setPreference(diet)}
+          >
+            <MotiText
+              style={styles.buttonText}
+              from={{ scale: 1 }}
+              animate={{ scale: preference === diet ? 1.1 : 1 }}
+              transition={{ type: "spring", damping: 10 }}
+            >
+              {diet}
+            </MotiText>
+          </TouchableOpacity>
+        ))}
+      </MotiView>
 
-      <TouchableOpacity
-        style={[
-          styles.preferenceButton,
-          preference === "Vegetarian" && styles.selectedButton,
-        ]}
-        onPress={() => setPreference("Vegetarian")}
+      {/* Animated Next Button */}
+      <MotiView
+        style={styles.nextButtonContainer}
+        from={{ opacity: 0, translateY: 20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 800, delay: 1200 }}
       >
-        <Text style={styles.buttonText}>Vegetarian</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.preferenceButton,
-          preference === "Halal" && styles.selectedButton,
-        ]}
-        onPress={() => setPreference("Halal")}
-      >
-        <Text style={styles.buttonText}>Halal</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.preferenceButton,
-          preference === "Kosher" && styles.selectedButton,
-        ]}
-        onPress={() => setPreference("Kosher")}
-      >
-        <Text style={styles.buttonText}>Kosher</Text>
-      </TouchableOpacity>
-
-      {/* Default button for "Next: Confirmation" */}
-      <Button title="Next: Confirmation" onPress={handleNext} />
+        <Button title="Next: Confirmation" onPress={handleNext} />
+      </MotiView>
     </View>
   );
 };
@@ -79,21 +89,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#D8F8C6",
+    backgroundColor: "#c8e6c9",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "right", // Align title to the right
+    color: "#333",
   },
   subtitle: {
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 30,
+    textAlign: "right", // Align subtitle to the right
+    color: "#555",
+    lineHeight: 24,
+  },
+  buttonContainer: {
     marginBottom: 20,
   },
   preferenceButton: {
     backgroundColor: "#ADD8E6", // Light blue for unchosen
-    padding: 10,
+    padding: 12,
     borderRadius: 5,
     marginVertical: 5,
     alignItems: "center",
@@ -105,6 +122,9 @@ const styles = StyleSheet.create({
     color: "#fff", // White text for buttons
     fontWeight: "bold",
     fontSize: 16,
+  },
+  nextButtonContainer: {
+    alignSelf: "flex-end", // Align button container to the right
   },
 });
 
