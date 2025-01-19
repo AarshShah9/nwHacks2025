@@ -42,6 +42,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="userbasic" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Basic Information',
             }}
@@ -49,6 +50,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="health" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Health Information',
             }}
@@ -56,6 +58,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="preferences" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Preferences',
             }}
@@ -63,6 +66,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="confirmation" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Confirm Details',
             }}
@@ -70,6 +74,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="onboarding" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Welcome',
             }}
@@ -81,6 +86,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="leaderboard" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Top Chefs',
             }} 
@@ -88,6 +94,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="progress" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Cooking Progress',
             }} 
@@ -95,34 +102,40 @@ export default function RootLayout() {
           <Stack.Screen
             name="fridge" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'My Fridge',
             }} 
           />
           <Stack.Screen 
             name="track" 
-            options={{ 
+            options={{
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Track',
+
             }} 
           />
           <Stack.Screen 
             name="profile-settings" 
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Profile Settings',
             }} 
           />
           <Stack.Screen 
-            name="recipe/[id]" 
+            name="recipe/[id]"
             options={{ 
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Recipe Details',
             }} 
           />
           <Stack.Screen 
             name="subscription" 
-            options={{ 
+            options={{
+              headerBackTitle: 'Back',
               headerShown: true,
               title: 'Subscription',
             }} 

@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 60,
   },
   formTitle: {
     fontSize: 24,
