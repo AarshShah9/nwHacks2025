@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -10,22 +10,53 @@ type MenuItem = {
   route?: string;
 };
 
+interface ProfileData {
+  name: string;
+  exp: number;
+  allergies: string[];
+  diseases: string[];
+  restrictions: string[];
+}
+
 const MENU_ITEMS: MenuItem[] = [
     { id: 6, title: 'Cooking Progress', icon: 'trophy-outline', route: '/progress' },
     { id: 2, title: 'Leaderboard', icon: 'trophy-outline', route: '/leaderboard' },
-  { id: 1, title: 'Profile Settings', icon: 'settings-outline' },
-  { id: 3, title: 'Email & Password', icon: 'create-outline' },
-  { id: 4, title: 'Subscription', icon: 'card-outline' },
-  { id: 5, title: 'Log Out', icon: 'log-out-outline' },
+    { id: 1, title: 'Profile Settings', icon: 'settings-outline' },
+    { id: 3, title: 'Email & Password', icon: 'create-outline' },
+    { id: 4, title: 'Subscription', icon: 'card-outline' },
+    { id: 5, title: 'Log Out', icon: 'log-out-outline' },
 ];
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const fetchProfileData = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/profile/get');
+      const data = await response.json();
+      setProfileData(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
 
   const handleMenuPress = (route?: string) => {
     if (route) {
-      router.push(route);
+      router.push(route as any); // Using type assertion for now
     }
+  };
+
+  const getLevel = (exp: number) => {
+    if (exp >= 1000) return 5;
+    if (exp >= 500) return 4;
+    if (exp >= 250) return 3;
+    if (exp >= 100) return 2;
+    return 1;
   };
 
   return (
@@ -37,18 +68,21 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Ionicons name="happy-outline" size={40} color="#333" />
           </View>
+          <Text style={styles.userName}>{profileData?.name || 'Loading...'}</Text>
         </View>
 
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>3</Text>
+              <Text style={styles.levelText}>
+                {profileData ? getLevel(profileData.exp) : '-'}
+              </Text>
             </View>
             <Text style={styles.statLabel}>Level</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>256</Text>
+            <Text style={styles.statValue}>{profileData?.exp || 0}</Text>
             <Text style={styles.statLabel}>Total Points</Text>
           </View>
         </View>
@@ -181,5 +215,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 2,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 10,
   },
 }); 
