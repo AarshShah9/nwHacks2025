@@ -15,7 +15,7 @@ export default function ProfileSettingsScreen() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://10.43.65.141:5000/profile/modify', {
+      const response = await fetch('http://128.189.228.211:5000/profile/modify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ export default function ImagePickerScreen() {
     setLoadingMessage('Processing image...');
     setLoading(true);
     try {
-      const response = await fetch('http://10.43.65.141:5000/ingredients/scan', {
+      const response = await fetch('http://128.189.228.211:5000/ingredients/scan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,8 +37,9 @@ export default function ImagePickerScreen() {
         throw new Error('Failed to process image');
       }
 
-      const data = await response.json();
-      setIngredients(data);
+      const data = await response.json(); 
+      console.log(data);
+      setIngredients(data.ingredients);
       setShowForm(true);
     } catch (error) {
       console.error('Error scanning ingredients:', error);
@@ -76,7 +77,7 @@ export default function ImagePickerScreen() {
     setLoadingMessage('Adding ingredients...');
     setLoading(true);
     try {
-      const response = await fetch('http://10.43.65.141:5000/ingredients/validate', {
+      const response = await fetch('http://128.189.228.211:5000/ingredients/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +167,7 @@ export default function ImagePickerScreen() {
     return (
       <ScrollView style={styles.formContainer}>
         <Text style={styles.formTitle}>Confirm Ingredients</Text>
-        {ingredients.map((ingredient, index) => (
+        {ingredients?.map((ingredient, index) => (
           <View key={index} style={styles.ingredientForm}>
             <View style={styles.ingredientHeader}>
               <Text style={styles.ingredientNumber}>Item {index + 1}</Text>
