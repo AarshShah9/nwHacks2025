@@ -19,7 +19,7 @@ Definition of a recipe metadata, full recipe instructions elsewhere.
 """
 
 
-def get_ingredients_from_image(image_path):
+def get_ingredients_from_image(base64_encode):
     """
     Uses Google's Gemini API to recognize ingredients in an image.
     """
@@ -33,31 +33,48 @@ def get_ingredients_from_image(image_path):
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     
     genai.configure(api_key=api_key)
-
-    with open(image_path, 'rb') as image_file:
-        image_data = image_file.read()
-    
-    encoded_image = base64.b64encode(image_data).decode('utf-8')
-    
+        
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
-    prompt = "List all food ingredients within this image, separated by a single comma. Only use one word per ingredient."
+    prompt = """
+    Analyze the image to detect food ingredients and return a JSON object with the following structure:
 
+    {
+        "ingredients": [
+            {
+                "name": "ingredient_name",
+                "count": number_of_items_detected,
+                "units": "measurement_units_if_applicable_or_piece",
+                "expiry": "expiration_in_days_assuming_recent_purchase",
+                "carbon_footprint": "1, 2, or 3 where 3 represents the highest footprint"
+            }
+        ]
+    }
+
+    For each ingredient:
+    - Provide the count of items or measurements (e.g., "1 piece", "200 grams").
+    - Estimate the expiration time in days assuming the ingredient was recently bought (e.g., fresh produce, packaged goods).
+    - Assess the carbon footprint on a scale of 1 to 3, where 3 is the least environmentally friendly.
+
+    Do not include any text outside of the JSON format.
+    """
     response = model.generate_content(
-        [{'mime_type': 'image/png', 'data': encoded_image}, prompt]
+        [{'mime_type': 'image/png', 'data': base64_encode}, prompt]
     )
+
 
     result = response.text
     log_to_file(response.text, "ingredient_classification/responses")
 
-    ingredients = [x.strip() for x in result.split(',')]
+
+    ingredients = parse_json_response(result)
     print(ingredients)
     return ingredients
 
-def generate_recipe_header_from_ingredients(ingredients, allergies, previous_recipes):
+def generate_full_recipe_instructions(recipe_header, ingredients, allergies):
     """
-    Uses Google's Gemini API to generate recipes using the given ingredients, limiting recipe generation using allergies.
+    Uses Google's Gemini API to generate detailed recipe instructions based on the provided recipe header.
     """
-    print(f"Generating recipe header from ingredients: {ingredients} ...")
+    print(f"Generating full recipe instructions for: {recipe_header.get('recipe_name', 'Unknown Recipe')}...")
     load_dotenv()
 
     api_key = os.getenv("GEMINI_API_KEY")
@@ -74,63 +91,12 @@ def generate_recipe_header_from_ingredients(ingredients, allergies, previous_rec
 
     I have the following dietary restrictions: {", ".join(allergies)}. Do not include any of these ingredients in the recipe.
 
-    {"Avoid generating recipes that are very similar to these:" + ", ".join(previous_recipes) if previous_recipes else "None"}.
-
-    Structure your response in JSON format as follows:
-    {{
-    "recipe_name": "your_response",
-    "short_description": "your_response",
-    "cooking_time": "your_response"
-    }}
-
-    Do not include any additional text outside the JSON format.
-    """
-
-    response = model.generate_content(prompt)
-
-    result = response.text
-
-    log_to_file(prompt, "recipe_header_generation/prompts")
-    log_to_file(response.text, "recipe_header_generation/responses")
-
-    try:
-        recipe = parse_json_response(result)
-    except ValueError as e:
-        log_to_file(str(e), "recipe_header_generation/errors")
-        recipe = None
-
-    print(recipe)
-    return recipe
-    
-
-def generate_full_recipe_instructions(recipe_header):
-    """
-    Uses Google's Gemini API to generate detailed recipe instructions based on the provided recipe header.
-    """
-    print(f"Generating full recipe instructions for: {recipe_header.get('recipe_name', 'Unknown Recipe')}...")
-    load_dotenv()
-
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
-    
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
-
-    prompt = f"""
-    Based on the following recipe header, generate detailed recipe instructions:
-    {{
-    "recipe_name": "{recipe_header.get('recipe_name', '')}",
-    "short_description": "{recipe_header.get('short_description', '')}",
-    "cooking_time": "{recipe_header.get('cooking_time', '')}"
-    }}
 
     Structure the response in JSON format as follows:
     {{
-    "recipe_name": "{recipe_header.get('recipe_name', '')}",
-    "short_description": "{recipe_header.get('short_description', '')}",
-    "cooking_time": "{recipe_header.get('cooking_time', '')}",
+    "recipe_name": "your answer",
+    "short_description": "your answer",
+    "cooking_time": "your answer",
     "difficulty": "Choose from: Easy/Medium/Hard",
     "ingredients": ["List all required ingredients here"],
     "instructions": ["Step-by-step cooking instructions"]
@@ -156,7 +122,7 @@ def generate_full_recipe_instructions(recipe_header):
     return full_recipe
 
 
-def assess_points_from_recipe_header(header, restrictions, diseases):
+def assess_points_from_recipe_header(recipe, restrictions, diseases):
     """
     Uses Google's Gemini API to generate recipes using the given ingredients, limiting recipe generation using allergies,
     restrictions, diseases.
@@ -174,7 +140,7 @@ def assess_points_from_recipe_header(header, restrictions, diseases):
     Based upon the recipe header, I want to assess the recipe with a points system based upon its nutritional value and carbon footprint.
     Use real and accurate nutritional values and carbon footprint values to the best of your abilities based on the recipe name and description.
 
-    This is the recipe I have: {header["recipe_name"]}, {header["short_description"]}. 
+    This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
 
     These are restrictions and diseases I have: {", ".join(restrictions)}, {", ".join(diseases)}. 
     If they apply to the recipe, mention it and deduct points accordingly.

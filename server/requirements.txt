@@ -1,6 +1,6 @@
 streamlit
 google-generativeai
-dotenv
+python-dotenv
 pillow
 flask
 flask_cors

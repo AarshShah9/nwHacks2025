@@ -19,6 +19,7 @@ export default function ImagePickerScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [showForm, setShowForm] = useState(false);
 
+<<<<<<< Updated upstream
   const mockApiCall = async () => {
     setLoadingMessage('Processing image...');
     setLoading(true);
@@ -32,6 +33,39 @@ export default function ImagePickerScreen() {
         units: 'piece',
         expiry: 7,
         carbon_footprint: 1
+=======
+  function toggleCameraFacing() {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  }
+
+  const handleTakePhoto = async () => {
+    if (!cameraRef.current) return;
+
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!photo?.base64 || !photo?.uri) return;
+
+      // Send photo to backend
+      const response = await fetch('http://128.189.228.211:5000/insert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: photo.base64,
+          uri: photo.uri,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Photo uploaded successfully!');
+      } else {
+        console.error('Failed to upload photo');
+>>>>>>> Stashed changes
       }
     ]);
   };
