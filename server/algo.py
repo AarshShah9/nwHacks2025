@@ -99,7 +99,8 @@ def generate_full_recipe_instructions(recipe_header, ingredients, allergies):
     "cooking_time": "your answer",
     "difficulty": "Choose from: Easy/Medium/Hard",
     "ingredients": ["List all required ingredients here"],
-    "instructions": ["Step-by-step cooking instructions"]
+    "instructions": ["Step-by-step cooking instructions"],
+    "url": "Find a relevant image pertaining to the recipe name online, and paste the full url here"
     }}
 
     Do not include any text outside the JSON format.

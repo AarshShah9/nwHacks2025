@@ -13,12 +13,16 @@ db = firestore.client()
 def add_to_inventory(name, count, units, expiry, carbon_footprint):
     inventory_ref = db.collection('inventory')
     inventory_ref = inventory_ref.document(name)
-    inventory_ref.set({
-        'count': count,
-        'units': units,
-        'expiry': expiry,
-        'carbon_footprint': carbon_footprint
-    })
+    doc = inventory_ref.get()
+    if doc.exists:
+        inventory_ref.update({'count': firestore.Increment(count)})
+    else:
+        inventory_ref.set({
+            'count': count,
+            'units': units,
+            'expiry': expiry,
+            'carbon_footprint': carbon_footprint
+        })
     print("%s added to inventory" % (name))
 
 '''
@@ -28,11 +32,12 @@ def add_to_inventory(name, count, units, expiry, carbon_footprint):
 def remove_from_inventory(name, amount):
     inventory_ref = db.collection('inventory')
     inventory_ref = inventory_ref.document(name)
-    if amount == 0:
+    count = inventory_ref.get().get('count')
+    if count - amount <= 0:
         inventory_ref.delete()
+        print("%s has been removed" % (name))
     else: 
-        inventory_ref.update({ 'amount': amount })
-    print("%s has been removed" % (name))
+        inventory_ref.update({ 'count':  count - amount})
 
 '''
     Get entire 'inventory' collection
@@ -55,7 +60,7 @@ def get_inventory():
     @params: name, short_description, cooking_time, difficulty, ingredients, instructions,
              nutritional_values, points_response, justification_response, warnings
 '''
-def add_to_recipes(name, short_description, cooking_time, difficulty, ingredients, instructions,
+def add_to_recipes(name, short_description, cooking_time, difficulty, ingredients, instructions, url,
                    nutritional_values, points_response, justification_response, warnings):
     recipes_ref = db.collection('recipes')
     recipes_ref = recipes_ref.document(name)
@@ -65,6 +70,7 @@ def add_to_recipes(name, short_description, cooking_time, difficulty, ingredient
         'difficulty': difficulty,
         'ingredients': ingredients,
         'instructions': instructions,
+        'url': url,
         'nutritional_values': nutritional_values,
         'points_response': points_response,
         'justification_response': justification_response,
