@@ -110,7 +110,7 @@ def recipesGenerate():
     if request.method == 'GET':
         profile = get_profile()
         inventory = get_inventory()
-        recipe = generate_full_recipe_instructions(inventory['ingredients'], profile['allergies'])
+        recipe = generate_full_recipe_instructions(inventory['ingredients'], profile['allergies'], profile['restrictions'])
         recipe_parsed = json.loads(recipe)        # format:
         # {{
         #     "recipe_name": "your answer",
@@ -121,7 +121,7 @@ def recipesGenerate():
         #     "instructions": ["Step-by-step cooking instructions"],
         #      "url" : "dhdhj"
         # }}
-        points_analysis = assess_points_from_recipe_header(recipe_parsed, profile['restrictions'], profile['diseases'])
+        points_analysis = assess_points_from_recipe_header(recipe_parsed, profile['diseases'])
         # format:     {{
         # "nutritional_values": "your_response_here",
         # "points_response": "your_response_here",
@@ -148,7 +148,7 @@ def recipesConfirm():
         data = request.get_json()
         recipe_info = data['recipe']
         new_points = int(recipe_info['points_response'])
-        ingredients = []
+        ingredients = recipe_info['ingredients']
         for ingred in ingredients:
             remove_from_inventory(ingred['name'], ingred['count'])
         modify_profile(profile['name'], profile['exp'] + new_points, profile['allergies'], 

@@ -70,7 +70,7 @@ def get_ingredients_from_image(base64_encode):
     print(ingredients)
     return ingredients
 
-def generate_full_recipe_instructions(ingredients, allergies):
+def generate_full_recipe_instructions(ingredients, restrictions, allergies):
     """
     Uses Google's Gemini API to generate detailed recipe instructions based on the provided recipe header.
     """
@@ -117,7 +117,13 @@ def generate_full_recipe_instructions(ingredients, allergies):
             "ingredients": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string", "description": "The name of the ingredient, exactly same as given"},
+                        "count": {"type": "number", "description": "The quantity of the ingredient."},
+                        "units": {"type": "string", "description": "The measurement units for the ingredient."},
+                    },
+                    "required": ["name", "count", "units"]
                 },
                 "description": "A list of ingredients required for the recipe."
             },
@@ -148,7 +154,7 @@ def generate_full_recipe_instructions(ingredients, allergies):
     I want to generate a structured recipe header using the following ingredients: {", ".join(ingredient_names)}.
     You may assume we have common household commodities.
 
-    I have the following dietary restrictions: {", ".join(allergies)}. Do not include any of these ingredients in the recipe.
+    I have the following dietary restrictions: {", ".join(allergies)}, {", ".join(restrictions)}. Do not generate any recipes that include these.
 
     Structure the response in JSON format as given
     """
@@ -164,7 +170,7 @@ def generate_full_recipe_instructions(ingredients, allergies):
     return text
 
 
-def assess_points_from_recipe_header(recipe, restrictions, diseases):
+def assess_points_from_recipe_header(recipe, diseases):
     """
     Uses Google's Gemini API to generate recipes using the given ingredients, limiting recipe generation using allergies,
     restrictions, diseases.
@@ -181,7 +187,7 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
         recipe["ingredients"] = json.loads(recipe["ingredients"])  # Parse string as JSON to get a list
 
     # Now safely iterate over the ingredients
-    ingredient_names = [ingredient for ingredient in recipe["ingredients"]]
+    ingredient_names = [ingredient["name"] for ingredient in recipe["ingredients"]]
     generation_config = {
     "temperature": 2,
     "max_output_tokens": 8192,  # Use snake_case for consistency in Python
@@ -191,19 +197,19 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
         "properties": {
             "nutritional_values": {
                 "type": "string",
-                "description": "The nutritional information as a string."
+                "description": "The nutritional information as a string: calories, fats, proteins, carbs, etc."
             },
             "carbon_footprint": {
                 "type": "number",
-                "description": "The carbon footprint of the recipe, in grams"
+                "description": "The carbon footprint of the recipe, in ppm"
             },
             "points_response": {
                 "type": "number",
-                "description": "The response in numerical format, representing points."
+                "description": "The response in numerical format, representing points, from 0-10"
             },
             "justification_response": {
                 "type": "string",
-                "description": "A textual justification or reasoning."
+                "description": "A textual breakdown or reasoning, using the given categories"
             },
             "warnings": {
                 "type": "string",
@@ -222,7 +228,7 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
 
     The ingredients: {", ".join(ingredient_names)}. 
-    These are restrictions and diseases I have: {", ".join(restrictions)}, {", ".join(diseases)}.
+    These are diseases I have: {", ".join(diseases)}.
     
     If they apply to the recipe, mention it and deduct points accordingly.
 
