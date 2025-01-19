@@ -134,6 +134,8 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     genai.configure(api_key=api_key)
+    ingredient_names = [ingredient['name'] for ingredient in recipe]
+    ingredient_carbon = [ingredient['carbon_footprint'] for ingredient in recipe]
 
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
     prompt = f"""
@@ -142,7 +144,10 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
 
     This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
 
-    These are restrictions and diseases I have: {", ".join(restrictions)}, {", ".join(diseases)}. 
+    The ingredients and their carbon footprint: {", ".join(ingredient_names)}, {", ".join(ingredient_carbon)}. 
+
+    These are restrictions and diseases I have: {", ".join(([f"- {name}: {carbon}" for name, carbon in zip(ingredient_names, ingredient_carbon)]))}. 
+    
     If they apply to the recipe, mention it and deduct points accordingly.
 
     Provide an explanation for the points you give, clearly based upon:
@@ -154,7 +159,7 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     {{
     "nutritional_values": "your_response_here",
     "points_response": "your_response_here",
-    "justification_response": "your_response_here",
+    "justification_response": "your_response_here, in one sentence",
     "warnings": "your_response_here" # Include warnings if applicable, or leave as an empty string.
     }}
     Do not include any text outside the JSON format.
