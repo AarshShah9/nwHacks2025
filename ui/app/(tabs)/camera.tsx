@@ -19,32 +19,33 @@ export default function ImagePickerScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-  const mockApiCall = async () => {
+  const scanIngredients = async (imageBase64: string) => {
     setLoadingMessage('Processing image...');
     setLoading(true);
-    // Send photo to backend
-    //   const response = await fetch('http://128.189.228.211:5000/insert', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       image: photo.base64,
-    //       uri: photo.uri,
-    //     }),
-    //   });
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setLoading(false);
-    setShowForm(true);
-    setIngredients([
-      {
-        name: 'tomato',
-        count: 4,
-        units: 'piece',
-        expiry: 7,
-        carbon_footprint: 1
+    try {
+      const response = await fetch('http://10.43.65.141:5000/ingredients/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: imageBase64,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process image');
       }
-    ]);
+
+      const data = await response.json();
+      setIngredients(data);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Error scanning ingredients:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateIngredient = (index: number, field: keyof Ingredient, value: string | number) => {
@@ -74,14 +75,31 @@ export default function ImagePickerScreen() {
   const handleConfirm = async () => {
     setLoadingMessage('Adding ingredients...');
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    setShowSuccess(true);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Show success message
-    setShowSuccess(false);
-    setShowForm(false);
-    setIngredients([]);
-    setImage(null);
+    try {
+      const response = await fetch('http://10.43.65.141:5000/ingredients/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ingredients),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to validate ingredients');
+      }
+
+      setShowSuccess(true);
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Show success message
+      setShowSuccess(false);
+      setShowForm(false);
+      setIngredients([]);
+      setImage(null);
+    } catch (error) {
+      console.error('Error validating ingredients:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -101,7 +119,7 @@ export default function ImagePickerScreen() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-      mockApiCall();
+      await scanIngredients(result.assets[0].base64 || '');
     }
   };
 
@@ -115,7 +133,7 @@ export default function ImagePickerScreen() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-      mockApiCall();
+      await scanIngredients(result.assets[0].base64 || '');
     }
   };
 
