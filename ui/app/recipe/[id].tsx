@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../constants/api';
@@ -31,19 +31,19 @@ export default function RecipeDetailScreen() {
   const { refetch } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
   const isViewMode = params.mode === 'view';
   
-console.log(recipe);
   const handleReroll = async () => {
     try {
       setLoading(true);
+      setLoadingMessage('Generating new recipe...');
       const response = await fetch(`${API_URL}/recipes/generate`);
       if (!response.ok) {
         throw new Error('Failed to generate recipe');
       }
       const newRecipe = await response.json();
-      // Update the current screen with new recipe data
       router.replace({
         pathname: '/recipe/[id]',
         params: { 
@@ -55,11 +55,14 @@ console.log(recipe);
       console.error('Error generating new recipe:', error);
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
   const handleConfirm = async () => {
     try {
+      setLoading(true);
+      setLoadingMessage('Confirming recipe...');
       const response = await fetch(`${API_URL}/recipes/confirm`, {
         method: 'POST',
         headers: {
@@ -71,14 +74,16 @@ console.log(recipe);
       });
 
       if (response.ok) {
-        // Switch to read-only mode after successful confirmation
+        await refetch();
         router.setParams({ mode: 'view' });
-        refetch();
       } else {
         console.error('Failed to confirm recipe');
       }
     } catch (error) {
       console.error('Error confirming recipe:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -91,89 +96,100 @@ console.log(recipe);
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{recipe.recipe_name}</Text>
-        <View style={styles.metaInfo}>
-          <View style={styles.metaItem}>
-            <Ionicons name="time-outline" size={20} color="#666" />
-            <Text style={styles.metaText}>{recipe.cooking_time} min</Text>
-          </View>
-          <View style={styles.metaItem}>
-            <Ionicons name="trophy-outline" size={20} color="#666" />
-            <Text style={styles.metaText}>{recipe.points_response} pts</Text>
-          </View>
-          <View style={styles.difficultyBadge}>
-            <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
+    <>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{recipe.recipe_name}</Text>
+          <View style={styles.metaInfo}>
+            <View style={styles.metaItem}>
+              <Ionicons name="time-outline" size={20} color="#666" />
+              <Text style={styles.metaText}>{recipe.cooking_time} min</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <Ionicons name="trophy-outline" size={20} color="#666" />
+              <Text style={styles.metaText}>{recipe.points_response} pts</Text>
+            </View>
+            <View style={styles.difficultyBadge}>
+              <Text style={styles.difficultyText}>{recipe.difficulty}</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <Text style={styles.description}>{recipe.short_description}</Text>
+        <Text style={styles.description}>{recipe.short_description}</Text>
 
-      {recipe.warnings && (
-        <View style={styles.warningBox}>
-          <Ionicons name="warning-outline" size={20} color="#FFA500" />
-          <Text style={styles.warningText}>{recipe.warnings}</Text>
-        </View>
-      )}
+        {recipe.warnings && (
+          <View style={styles.warningBox}>
+            <Ionicons name="warning-outline" size={20} color="#FFA500" />
+            <Text style={styles.warningText}>{recipe.warnings}</Text>
+          </View>
+        )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ingredients</Text>
-        {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.listItem}>
-            • {ingredient.count} {ingredient.units} {ingredient.name}
-          </Text>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Instructions</Text>
-        {recipe.instructions.map((instruction, index) => (
-          <Text key={index} style={styles.listItem}>{index + 1}. {instruction}</Text>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Nutritional Information</Text>
-        <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recipe Analysis</Text>
-        <Text style={styles.justificationText}>{recipe.justification_response}</Text>
-      </View>
-
-      {recipe.carbon_footprint && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Carbon Footprint</Text>
-          <Text style={styles.nutritionalText}>{recipe.carbon_footprint}</Text>
-        </View>
-      )}
-
-      {!isViewMode && (
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.button, styles.rerollButton]} 
-            onPress={handleReroll}
-            disabled={loading}
-          >
-            <Ionicons name="refresh" size={24} color="#8B4513" />
-            <Text style={styles.rerollButtonText}>
-              {loading ? 'Generating...' : 'Try Another Recipe'}
+          <Text style={styles.sectionTitle}>Ingredients</Text>
+          {recipe.ingredients.map((ingredient, index) => (
+            <Text key={index} style={styles.listItem}>
+              • {ingredient.count} {ingredient.units} {ingredient.name}
             </Text>
-          </TouchableOpacity>
+          ))}
+        </View>
 
-          <TouchableOpacity 
-            style={[styles.button, styles.confirmButton]}
-            onPress={handleConfirm}
-          >
-            <Ionicons name="checkmark-circle" size={24} color="#fff" />
-            <Text style={styles.confirmButtonText}>Cook This!</Text>
-          </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Instructions</Text>
+          {recipe.instructions.map((instruction, index) => (
+            <Text key={index} style={styles.listItem}>{index + 1}. {instruction}</Text>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Nutritional Information</Text>
+          <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recipe Analysis</Text>
+          <Text style={styles.justificationText}>{recipe.justification_response}</Text>
+        </View>
+
+        {recipe.carbon_footprint && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Carbon Footprint</Text>
+            <Text style={styles.nutritionalText}>{recipe.carbon_footprint}</Text>
+          </View>
+        )}
+
+        {!isViewMode && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.rerollButton]} 
+              onPress={handleReroll}
+              disabled={loading}
+            >
+              <Ionicons name="refresh" size={24} color="#8B4513" />
+              <Text style={styles.rerollButtonText}>
+                {loading ? 'Generating...' : 'Try Another Recipe'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.button, styles.confirmButton]}
+              onPress={handleConfirm}
+            >
+              <Ionicons name="checkmark-circle" size={24} color="#fff" />
+              <Text style={styles.confirmButtonText}>Cook This!</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContent}>
+            <ActivityIndicator size="large" color="#8B4513" />
+            <Text style={styles.loadingText}>{loadingMessage}</Text>
+          </View>
         </View>
       )}
-    </ScrollView>
+    </>
   );
 }
 
@@ -293,5 +309,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
   },
 }); 
