@@ -58,6 +58,14 @@ export default function RootLayout() {
               headerTintColor: '#8B4513',
             }} 
           />
+          <Stack.Screen 
+            name="profile-settings" 
+            options={{ 
+              headerShown: true,
+              title: 'Profile Settings',
+              headerTintColor: '#8B4513',
+            }} 
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
