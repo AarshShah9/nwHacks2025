@@ -148,7 +148,7 @@ def recipesConfirm():
         data = request.get_json()
         recipe_info = data.get_json('recipe')
         new_points = int(recipe_info['points_response'])
-        ingredients = []
+        ingredients = recipe_info['ingredients']
         for ingred in ingredients:
             remove_from_inventory(ingred['name'], ingred['count'])
         modify_profile(profile['name'], profile['exp'] + new_points, profile['allergies'], 
