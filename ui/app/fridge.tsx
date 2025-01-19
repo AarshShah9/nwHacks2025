@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { API_URL } from '@/constants/api';
+import { FlashList } from '@shopify/flash-list';
 
 interface FridgeItem {
   name: string;
@@ -18,26 +19,106 @@ interface InventoryResponse {
 
 export default function FridgeScreen() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [fridgeItems, setFridgeItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchInventory();
-  }, []);
+  const [refreshing, setRefreshing] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchInventory = async () => {
     try {
-      setLoading(true);
       const response = await fetch(`${API_URL}/inventory/get`);
       const data: InventoryResponse = await response.json();
       setFridgeItems(data.ingredients);
     } catch (error) {
       console.error('Error fetching inventory:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchInventory().finally(() => setLoading(false));
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchInventory();
+    setRefreshing(false);
+  };
+
+  const handleDelete = async (itemName: string) => {
+    try {
+      setDeleting(itemName);
+      const response = await fetch(`${API_URL}/ingredients/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: itemName
+        })
+      });
+
+      if (response.ok) {
+        // Remove item from local state
+        setFridgeItems(current => current.filter(item => item.name !== itemName));
+      } else {
+        console.error('Failed to delete item');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const getCarbonFootprintColor = (value: number) => {
+    switch (value) {
+      case 1:
+        return '#4CAF50'; // Green
+      case 2:
+        return '#FFC107'; // Yellow
+      case 3:
+        return '#F44336'; // Red
+      default:
+        return '#666';
+    }
+  };
+
+  const renderItem = ({ item }: { item: FridgeItem }) => (
+    <View style={styles.itemCard}>
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemName}>
+          {item.name.split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ')}
+        </Text>
+        <View style={styles.itemDetails}>
+          <Text style={styles.itemExpiry}>Expires in {item.expiry} days</Text>
+          <Text style={[
+            styles.carbonFootprint,
+            { color: getCarbonFootprintColor(item.carbon_footprint) }
+          ]}>
+            Carbon: {item.carbon_footprint}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.rightContainer}>
+        <Text style={styles.itemQuantity}>
+          {item.count} {item.units}
+        </Text>
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item.name)}
+          disabled={deleting === item.name}
+        >
+          <Ionicons 
+            name="trash-outline" 
+            size={20} 
+            color={deleting === item.name ? '#999' : '#F44336'} 
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   if (loading) {
     return (
@@ -49,27 +130,19 @@ export default function FridgeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Items List */}
-      <ScrollView style={styles.itemList}>
-        {fridgeItems.length === 0 ? (
-          <Text style={styles.emptyText}>No items found</Text>
-        ) : (
-          fridgeItems.map((item, index) => (
-            <View key={index} style={styles.itemCard}>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <View style={styles.itemDetails}>
-                  <Text style={styles.itemExpiry}>Expires in {item.expiry} days</Text>
-                  <Text style={styles.carbonFootprint}>Carbon: {item.carbon_footprint}</Text>
-                </View>
-              </View>
-              <Text style={styles.itemQuantity}>
-                {item.count} {item.units}
-              </Text>
-            </View>
-          ))
-        )}
-      </ScrollView>
+      <View style={styles.listContainer}>
+        <FlashList
+          data={fridgeItems}
+          renderItem={renderItem}
+          estimatedItemSize={80}
+          contentContainerStyle={styles.itemList}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
+          ListEmptyComponent={() => (
+            <Text style={styles.emptyText}>No items found</Text>
+          )}
+        />
+      </View>
 
       {/* Add Item Button */}
       <TouchableOpacity style={styles.addButton}>
@@ -86,8 +159,10 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     backgroundColor: '#fff',
   },
-  itemList: {
+  listContainer: {
     flex: 1,
+  },
+  itemList: {
     padding: 20,
   },
   itemCard: {
@@ -101,6 +176,10 @@ const styles = StyleSheet.create({
   },
   itemInfo: {
     flex: 1,
+  },
+  rightContainer: {
+    alignItems: 'flex-end',
+    gap: 8,
   },
   itemName: {
     fontSize: 16,
@@ -117,12 +196,14 @@ const styles = StyleSheet.create({
   },
   carbonFootprint: {
     fontSize: 14,
-    color: '#4CAF50',
   },
   itemQuantity: {
     fontSize: 16,
     fontWeight: '500',
     color: '#8B4513',
+  },
+  deleteButton: {
+    padding: 8,
   },
   addButton: {
     position: 'absolute',

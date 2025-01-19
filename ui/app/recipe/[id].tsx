@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../constants/api';
 import { useState } from 'react';
+import { useUser } from '@/context/UserContext';
 
 interface RecipeDetailProps {
   recipe_name: string;
@@ -19,6 +20,7 @@ interface RecipeDetailProps {
 
 export default function RecipeDetailScreen() {
   const params = useLocalSearchParams();
+  const { refetch } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
@@ -47,9 +49,28 @@ export default function RecipeDetailScreen() {
     }
   };
 
-  const handleConfirm = () => {
-    console.log('Recipe confirmed:', recipe);
-    router.back();
+  const handleConfirm = async () => {
+    try {
+      const response = await fetch(`${API_URL}/recipes/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipe: recipe
+        })
+      });
+
+      if (response.ok) {
+        // Switch to read-only mode after successful confirmation
+        router.setParams({ mode: 'view' });
+        refetch();
+      } else {
+        console.error('Failed to confirm recipe');
+      }
+    } catch (error) {
+      console.error('Error confirming recipe:', error);
+    }
   };
 
   if (!recipe) {

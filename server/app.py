@@ -95,9 +95,9 @@ def ingredientsValidate():
 def ingredientsDelete():
     if request.method == 'POST':
         data = request.get_json()
-        name = data.get_json('name')
+        name = data['name']
         remove_from_inventory(name, 999999)
-        return 200
+        return "OK", 200
     else:
         return error()
     
@@ -146,7 +146,7 @@ def recipesConfirm():
     if request.method == 'POST':
         profile = get_profile()
         data = request.get_json()
-        recipe_info = data.get_json('recipe')
+        recipe_info = data['recipe']
         new_points = int(recipe_info['points_response'])
         ingredients = []
         for ingred in ingredients:
@@ -155,7 +155,7 @@ def recipesConfirm():
                        profile['restrictions'], profile['restrictions'])
         add_to_recipes(recipe_info['recipe_name'], recipe_info['short_description'], recipe_info['cooking_time'], recipe_info['difficulty'],  recipe_info['ingredients'], recipe_info['instructions'], "",
                        recipe_info['nutritional_values'], recipe_info['points_response'], recipe_info['justification_response'], recipe_info['warnings'])
-        return 200
+        return jsonify({"message": "Recipe confirmed successfully"}), 200
     else:
         return error()
 
