@@ -1,72 +1,213 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, TouchableOpacity, View, Text, ActivityIndicator, TextInput, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
-export default function App() {
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef<CameraView>(null);
+interface Ingredient {
+  name: string;
+  count: number;
+  units: string;
+  expiry: number;
+  carbon_footprint: number;
+}
 
-  useEffect(() => {
-    if (!permission) {
-      requestPermission();
-    }
-  }, [permission]);
+export default function ImagePickerScreen() {
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Processing image...');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [showForm, setShowForm] = useState(false);
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-
-  const handleTakePhoto = async () => {
-    if (!cameraRef.current) return;
-
-    try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.7,
-        base64: true,
-      });
-
-      if (!photo?.base64 || !photo?.uri) return;
-
-      // Send photo to backend
-      const response = await fetch('YOUR_BACKEND_URL/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: photo.base64,
-          uri: photo.uri,
-        }),
-      });
-
-      if (response.ok) {
-        console.log('Photo uploaded successfully!');
-      } else {
-        console.error('Failed to upload photo');
+  const mockApiCall = async () => {
+    setLoadingMessage('Processing image...');
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoading(false);
+    setShowForm(true);
+    setIngredients([
+      {
+        name: 'tomato',
+        count: 4,
+        units: 'piece',
+        expiry: 7,
+        carbon_footprint: 1
       }
-    } catch (error) {
-      console.error('Error taking or uploading photo:', error);
+    ]);
+  };
+
+  const updateIngredient = (index: number, field: keyof Ingredient, value: string | number) => {
+    const updatedIngredients = [...ingredients];
+    const updatedIngredient = { ...updatedIngredients[index] };
+    
+    if (field === 'count' || field === 'expiry' || field === 'carbon_footprint') {
+      updatedIngredient[field] = Number(value);
+    } else if (field === 'name' || field === 'units') {
+      updatedIngredient[field] = value as string;
+    }
+    
+    updatedIngredients[index] = updatedIngredient;
+    setIngredients(updatedIngredients);
+  };
+
+  const addNewIngredient = () => {
+    setIngredients([...ingredients, {
+      name: '',
+      count: 1,
+      units: 'piece',
+      expiry: 7,
+      carbon_footprint: 0
+    }]);
+  };
+
+  const handleConfirm = async () => {
+    setLoadingMessage('Adding ingredients...');
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoading(false);
+    setShowSuccess(true);
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Show success message
+    setShowSuccess(false);
+    setShowForm(false);
+    setIngredients([]);
+    setImage(null);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setIngredients([]);
+    setImage(null);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      mockApiCall();
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <CameraView 
-        ref={cameraRef}
-        style={styles.camera} 
-        facing={facing}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Ionicons name="camera-reverse" size={30} color="white" />
+  const takePhoto = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      mockApiCall();
+    }
+  };
+
+  const removeIngredient = (index: number) => {
+    const updatedIngredients = ingredients.filter((_, i) => i !== index);
+    setIngredients(updatedIngredients);
+  };
+
+  if (showSuccess) {
+    return (
+      <View style={styles.loadingContainer}>
+        <View style={styles.successContainer}>
+          <Ionicons name="checkmark-circle" size={50} color="#4CAF50" />
+          <Text style={styles.successText}>Ingredients added successfully!</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.loadingText}>{loadingMessage}</Text>
+      </View>
+    );
+  }
+
+  if (showForm) {
+    return (
+      <ScrollView style={styles.formContainer}>
+        <Text style={styles.formTitle}>Confirm Ingredients</Text>
+        {ingredients.map((ingredient, index) => (
+          <View key={index} style={styles.ingredientForm}>
+            <View style={styles.ingredientHeader}>
+              <Text style={styles.ingredientNumber}>Item {index + 1}</Text>
+              <TouchableOpacity 
+                style={styles.deleteButton} 
+                onPress={() => removeIngredient(index)}
+              >
+                <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={ingredient.name}
+              onChangeText={(value) => updateIngredient(index, 'name', value)}
+              placeholder="Name"
+            />
+            <View style={styles.row}>
+              <TextInput
+                style={[styles.input, styles.smallInput]}
+                value={ingredient.count.toString()}
+                onChangeText={(value) => updateIngredient(index, 'count', value)}
+                keyboardType="numeric"
+                placeholder="Count"
+              />
+              <TextInput
+                style={[styles.input, styles.smallInput]}
+                value={ingredient.units}
+                onChangeText={(value) => updateIngredient(index, 'units', value)}
+                placeholder="Units"
+              />
+              <TextInput
+                style={[styles.input, styles.smallInput]}
+                value={ingredient.expiry.toString()}
+                onChangeText={(value) => updateIngredient(index, 'expiry', value)}
+                keyboardType="numeric"
+                placeholder="Expiry (days)"
+              />
+            </View>
+          </View>
+        ))}
+        
+        <TouchableOpacity style={styles.addButton} onPress={addNewIngredient}>
+          <Ionicons name="add" size={24} color="white" />
+          <Text style={styles.buttonText}>Add Another Item</Text>
+        </TouchableOpacity>
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+            <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-            <Ionicons name="camera" size={30} color="white" />
+          <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={handleConfirm}>
+            <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
         </View>
-      </CameraView>
+      </ScrollView>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={takePhoto}>
+          <Ionicons name="camera" size={30} color="white" />
+          <Text style={styles.buttonText}>Take Photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={pickImage}>
+          <Ionicons name="images" size={30} color="white" />
+          <Text style={styles.buttonText}>Choose Photo</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -75,24 +216,122 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: '#fff',
   },
-  camera: {
+  loadingContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 15,
-    left: 0,
-    right: 0,
+    paddingHorizontal: 20,
   },
   button: {
     backgroundColor: '#8B4513',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    width: 150,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlignVertical: 'center',
+  },
+  formContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+    paddingTop: 40,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#333',
+  },
+  ingredientForm: {
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    borderRadius: 30,
-    marginHorizontal: 10,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  smallInput: {
+    flex: 1,
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    height: 48,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 4,
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  cancelButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#8B4513',
+  },
+  cancelButtonText: {
+    color: '#8B4513',
+  },
+  confirmButton: {
+    backgroundColor: '#8B4513',
+  },
+  ingredientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  ingredientNumber: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#666',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  successContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  successText: {
+    marginTop: 16,
+    fontSize: 18,
+    color: '#4CAF50',
+    fontWeight: '600',
   },
 });
