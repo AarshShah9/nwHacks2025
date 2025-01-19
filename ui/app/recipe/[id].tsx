@@ -5,17 +5,25 @@ import { API_URL } from '../../constants/api';
 import { useState } from 'react';
 import { useUser } from '@/context/UserContext';
 
+interface RecipeIngredient {
+  name: string;
+  count: number;
+  units: string;
+}
+
 interface RecipeDetailProps {
   recipe_name: string;
   short_description: string;
-  cooking_time: string;
+  cooking_time: number;
   difficulty: string;
-  ingredients: string[];
+  ingredients: RecipeIngredient[];
   instructions: string[];
   nutritional_values: string;
-  points_response: string;
+  points_response: number;
   justification_response: string;
   warnings: string;
+  carbon_footprint: number;
+  url: string;
 }
 
 export default function RecipeDetailScreen() {
@@ -88,7 +96,7 @@ export default function RecipeDetailScreen() {
         <View style={styles.metaInfo}>
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={20} color="#666" />
-            <Text style={styles.metaText}>{recipe.cooking_time}</Text>
+            <Text style={styles.metaText}>{recipe.cooking_time} min</Text>
           </View>
           <View style={styles.metaItem}>
             <Ionicons name="trophy-outline" size={20} color="#666" />
@@ -112,7 +120,9 @@ export default function RecipeDetailScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.listItem}>• {ingredient}</Text>
+          <Text key={index} style={styles.listItem}>
+            • {ingredient.count} {ingredient.units} {ingredient.name}
+          </Text>
         ))}
       </View>
 
@@ -127,6 +137,13 @@ export default function RecipeDetailScreen() {
         <Text style={styles.sectionTitle}>Nutritional Information</Text>
         <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
       </View>
+
+      {recipe.carbon_footprint && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Carbon Footprint</Text>
+          <Text style={styles.nutritionalText}>{recipe.carbon_footprint}</Text>
+        </View>
+      )}
 
       {!isViewMode && (
         <View style={styles.buttonContainer}>

@@ -5,17 +5,25 @@ import { API_URL } from '../../constants/api';
 import { useRouter } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 
+interface RecipeIngredient {
+  name: string;
+  count: number;
+  units: string;
+}
+
 interface Recipe {
   recipe_name: string;
   short_description: string;
-  cooking_time: string;
+  cooking_time: number;
   difficulty: string;
-  ingredients: string[];
+  ingredients: RecipeIngredient[];
   instructions: string[];
   nutritional_values: string;
-  points_response: string;
+  points_response: number;
   justification_response: string;
   warnings: string;
+  carbon_footprint: number;
+  url: string;
 }
 
 export default function RecipesScreen() {
@@ -88,7 +96,7 @@ export default function RecipesScreen() {
         <View style={styles.recipeMetrics}>
           <View style={styles.metric}>
             <Ionicons name="time-outline" size={16} color="#666" />
-            <Text style={styles.metricText}>{recipe.cooking_time}</Text>
+            <Text style={styles.metricText}>{recipe.cooking_time} min</Text>
           </View>
           <View style={styles.metric}>
             <Ionicons name="trophy-outline" size={16} color="#666" />
