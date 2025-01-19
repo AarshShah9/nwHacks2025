@@ -92,11 +92,18 @@ export default function RootLayout() {
               title: 'Cooking Progress',
             }} 
           />
-          <Stack.Screen 
+          <Stack.Screen
             name="fridge" 
             options={{ 
               headerShown: true,
               title: 'My Fridge',
+            }} 
+          />
+          <Stack.Screen 
+            name="track" 
+            options={{ 
+              headerShown: true,
+              title: 'Track',
             }} 
           />
           <Stack.Screen 
@@ -111,6 +118,13 @@ export default function RootLayout() {
             options={{ 
               headerShown: true,
               title: 'Recipe Details',
+            }} 
+          />
+          <Stack.Screen 
+            name="subscription" 
+            options={{ 
+              headerShown: true,
+              title: 'Subscription',
             }} 
           />
         </Stack>

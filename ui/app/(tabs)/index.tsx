@@ -6,7 +6,7 @@ import { useUser } from '../../context/UserContext';
 const QUICK_ACTIONS = [
   { id: 1, icon: 'grid' as keyof typeof Ionicons.glyphMap, label: 'My Fridge', route: '/fridge'},
   { id: 2, icon: 'search' as keyof typeof Ionicons.glyphMap, label: 'Search' },
-  { id: 3, icon: 'calendar' as keyof typeof Ionicons.glyphMap, label: 'Track' },
+  { id: 3, icon: 'calendar' as keyof typeof Ionicons.glyphMap, label: 'Track', route: '/track' },
   { id: 4, icon: 'trophy' as keyof typeof Ionicons.glyphMap, label: 'Leaderboard', route: '/leaderboard' },
 ];
 

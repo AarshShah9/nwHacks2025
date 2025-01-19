@@ -11,9 +11,9 @@ interface ProfileData {
 
 interface UserContextType {
   profileData: ProfileData | null;
-  setProfileData: (data: ProfileData | null) => void;
   loading: boolean;
-  fetchProfileData: () => Promise<void>;
+  error: Error | null;
+  refetch: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -21,15 +21,21 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/profile/get`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data');
+      }
       const data = await response.json();
       setProfileData(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('An error occurred'));
+      console.error('Error fetching profile data:', err);
     } finally {
       setLoading(false);
     }
@@ -39,8 +45,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     fetchProfileData();
   }, []);
 
+  const value = {
+    profileData,
+    loading,
+    error,
+    refetch: fetchProfileData
+  };
+
   return (
-    <UserContext.Provider value={{ profileData, setProfileData, loading, fetchProfileData }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );

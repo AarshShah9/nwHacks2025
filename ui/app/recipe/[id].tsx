@@ -3,22 +3,32 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../constants/api';
 import { useState } from 'react';
+import { useUser } from '@/context/UserContext';
+
+interface RecipeIngredient {
+  name: string;
+  count: number;
+  units: string;
+}
 
 interface RecipeDetailProps {
   recipe_name: string;
   short_description: string;
-  cooking_time: string;
+  cooking_time: number;
   difficulty: string;
-  ingredients: string[];
+  ingredients: RecipeIngredient[];
   instructions: string[];
   nutritional_values: string;
-  points_response: string;
+  points_response: number;
   justification_response: string;
   warnings: string;
+  carbon_footprint: number;
+  url: string;
 }
 
 export default function RecipeDetailScreen() {
   const params = useLocalSearchParams();
+  const { refetch } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const recipe: RecipeDetailProps = params.recipe ? JSON.parse(params.recipe as string) : null;
@@ -47,9 +57,28 @@ export default function RecipeDetailScreen() {
     }
   };
 
-  const handleConfirm = () => {
-    console.log('Recipe confirmed:', recipe);
-    router.back();
+  const handleConfirm = async () => {
+    try {
+      const response = await fetch(`${API_URL}/recipes/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipe: recipe
+        })
+      });
+
+      if (response.ok) {
+        // Switch to read-only mode after successful confirmation
+        router.setParams({ mode: 'view' });
+        refetch();
+      } else {
+        console.error('Failed to confirm recipe');
+      }
+    } catch (error) {
+      console.error('Error confirming recipe:', error);
+    }
   };
 
   if (!recipe) {
@@ -67,7 +96,7 @@ export default function RecipeDetailScreen() {
         <View style={styles.metaInfo}>
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={20} color="#666" />
-            <Text style={styles.metaText}>{recipe.cooking_time}</Text>
+            <Text style={styles.metaText}>{recipe.cooking_time} min</Text>
           </View>
           <View style={styles.metaItem}>
             <Ionicons name="trophy-outline" size={20} color="#666" />
@@ -91,7 +120,9 @@ export default function RecipeDetailScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.listItem}>• {ingredient}</Text>
+          <Text key={index} style={styles.listItem}>
+            • {ingredient.count} {ingredient.units} {ingredient.name}
+          </Text>
         ))}
       </View>
 
@@ -106,6 +137,13 @@ export default function RecipeDetailScreen() {
         <Text style={styles.sectionTitle}>Nutritional Information</Text>
         <Text style={styles.nutritionalText}>{recipe.nutritional_values}</Text>
       </View>
+
+      {recipe.carbon_footprint && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Carbon Footprint</Text>
+          <Text style={styles.nutritionalText}>{recipe.carbon_footprint}</Text>
+        </View>
+      )}
 
       {!isViewMode && (
         <View style={styles.buttonContainer}>
