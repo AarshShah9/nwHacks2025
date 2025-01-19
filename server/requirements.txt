@@ -3,3 +3,7 @@ google-generativeai
 pillow
 flask
 python-dotenv
+dotenv
+pillow
+flask
+firebase_admin

@@ -27,26 +27,21 @@ def get_ingredients_from_image(image_path):
 
     load_dotenv()
 
-    # Fetch the API key from environment variables
+    # Fetch  API key from environment variables
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     
-    # Configure the Gemini API
     genai.configure(api_key=api_key)
 
-    # Load the image
     with open(image_path, 'rb') as image_file:
         image_data = image_file.read()
     
-    # Encode the image in base64
     encoded_image = base64.b64encode(image_data).decode('utf-8')
     
-    # Define the model and the prompt
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
     prompt = "List all food ingredients within this image, separated by a single comma. Only use one word per ingredient."
 
-    # Generate a response using the model
     response = model.generate_content(
         [{'mime_type': 'image/png', 'data': encoded_image}, prompt]
     )
@@ -54,7 +49,6 @@ def get_ingredients_from_image(image_path):
     result = response.text
     log_to_file(response.text, "ingredient_classification/responses")
 
-    # Extract the response text
     ingredients = [x.strip() for x in result.split(',')]
     print(ingredients)
     return ingredients
@@ -66,15 +60,12 @@ def generate_recipe_header_from_ingredients(ingredients, allergies, previous_rec
     print(f"Generating recipe header from ingredients: {ingredients} ...")
     load_dotenv()
 
-    # Fetch the API key from environment variables
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     
-    # Configure the Gemini API
     genai.configure(api_key=api_key)
 
-    # Define the model and the prompt
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
     prompt = f"""
@@ -95,14 +86,13 @@ def generate_recipe_header_from_ingredients(ingredients, allergies, previous_rec
     Do not include any additional text outside the JSON format.
     """
 
-    # Generate a response using the model
     response = model.generate_content(prompt)
 
     result = response.text
 
     log_to_file(prompt, "recipe_header_generation/prompts")
     log_to_file(response.text, "recipe_header_generation/responses")
-    # Extract and format the response
+
     try:
         recipe = parse_json_response(result)
     except ValueError as e:
@@ -120,18 +110,14 @@ def generate_full_recipe_instructions(recipe_header):
     print(f"Generating full recipe instructions for: {recipe_header.get('recipe_name', 'Unknown Recipe')}...")
     load_dotenv()
 
-    # Fetch the API key from environment variables
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     
-    # Configure the Gemini API
     genai.configure(api_key=api_key)
 
-    # Define the model and the prompt
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
-    # Create the prompt for generating recipe instructions
     prompt = f"""
     Based on the following recipe header, generate detailed recipe instructions:
     {{
@@ -153,7 +139,6 @@ def generate_full_recipe_instructions(recipe_header):
     Do not include any text outside the JSON format.
     """
 
-    # Generate a response using the model
     response = model.generate_content(prompt)
 
     result = response.text
@@ -161,7 +146,6 @@ def generate_full_recipe_instructions(recipe_header):
     log_to_file(prompt, "recipe_instructions_generation/prompts")
     log_to_file(response.text, "recipe_instructions_generation/responses")
 
-    # Extract and format the response
     try:
         full_recipe = parse_json_response(result)
     except ValueError as e:
@@ -180,14 +164,11 @@ def assess_points_from_recipe_header(header, restrictions, diseases):
     print("Assessing points based upon carbon footprint and health...")
 
     load_dotenv()
-    # Fetch the API key from environment variables
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
-    # Configure the Gemini API
     genai.configure(api_key=api_key)
 
-    # Define the model and the prompt
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
     prompt = f"""
     Based upon the recipe header, I want to assess the recipe with a points system based upon its nutritional value and carbon footprint.
@@ -213,12 +194,10 @@ def assess_points_from_recipe_header(header, restrictions, diseases):
     Do not include any text outside the JSON format.
     """
 
-    # Generate a response using the model
     response = model.generate_content(prompt)
 
     log_to_file(prompt, "points_analysis/prompts")
     log_to_file(response.text, "points_analysis/responses")
-    # Extract and format the response
     try:
         points_analysis = parse_json_response(response.text)
     except ValueError as e:
@@ -294,17 +273,13 @@ def log_to_file(log_text, folder_name):
         log_text (str): The text to be logged.
         folder_name (str): The folder path where the log file should be stored.
     """
-    # Create the full path for the logs directory
     logs_dir = os.path.join("logs", folder_name)
     
-    # Ensure all directories in the path exist
     os.makedirs(logs_dir, exist_ok=True)
-    
-    # Generate a timestamped log file name
+
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_filename = os.path.join(logs_dir, f"log_{current_time}.txt")
     
-    # Write the log text to the file
     with open(log_filename, "w") as log_file:
         log_file.write(log_text + "\n")
 
