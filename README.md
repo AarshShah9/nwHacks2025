@@ -13,7 +13,6 @@
 ![CleanCravings - Pitch Deck-10](https://github.com/user-attachments/assets/81905cc0-5ce0-46f9-a999-cff0c1be9f5f)
 ![CleanCravings - Pitch Deck-11](https://github.com/user-attachments/assets/47484b61-d8ff-414a-a8f2-551ec5273210)
 ![CleanCravings - Pitch Deck-12](https://github.com/user-attachments/assets/12aea630-3de7-46d9-a7c9-1df2efd38d90)
-![CleanCravings - Pitch Deck-13](https://github.com/user-attachments/assets/e7f0b115-3865-421e-844c-38d3b3796a4d)
 
 
 ## Inspiration
