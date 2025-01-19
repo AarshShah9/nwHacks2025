@@ -22,21 +22,6 @@ def add_to_inventory(name, count, units, expiry, carbon_footprint):
     print("%s added to inventory" % (name))
 
 '''
-    Add to 'recipe' collection
-    @params: name, amount, units, expiry, carbonImpact
-'''
-def add_to_recipe(name, count, units, expiry, carbon_footprint):
-    inventory_ref = db.collection('recipes')
-    inventory_ref = inventory_ref.document(name)
-    inventory_ref.set({
-        'count': count,
-        'units': units,
-        'expiry': expiry,
-        'carbon_footprint': carbon_footprint
-    })
-    print("%s added to inventory" % (name))
-
-'''
     Remove from 'inventory' collection
     @params: name, amount
 '''
@@ -62,6 +47,45 @@ def get_inventory():
         cur = doc.to_dict()
         cur['name'] = doc.id
         ret['ingredients'].append(cur)
+
+    return ret
+
+'''
+    Add to 'recipes' collection
+    @params: name, short_description, cooking_time, difficulty, ingredients, instructions,
+             nutritional_values, points_response, justification_response, warnings
+'''
+def add_to_recipes(name, short_description, cooking_time, difficulty, ingredients, instructions,
+                   nutritional_values, points_response, justification_response, warnings):
+    recipes_ref = db.collection('recipes')
+    recipes_ref = recipes_ref.document(name)
+    recipes_ref.set({
+        'short_description': short_description,
+        'cooking_time': cooking_time,
+        'difficulty': difficulty,
+        'ingredients': ingredients,
+        'instructions': instructions,
+        'nutritional_values': nutritional_values,
+        'points_response': points_response,
+        'justification_response': justification_response,
+        'warnings': warnings
+    })
+    print("%s added to recipes" % (name))
+
+'''
+    Get 'recipes' collection
+    @return: json list of recipes
+'''
+def get_recipes():
+    recipes_ref = db.collection('recipes')
+    docs = recipes_ref.stream()
+
+    ret = {"recipes": []}
+
+    for doc in docs:
+        cur = doc.to_dict()
+        cur['recipe_name'] = doc.id
+        ret['recipes'].append(cur)
 
     return ret
 
