@@ -1,1 +1,1 @@
-# nwHacks2025
+# CleanCravings
