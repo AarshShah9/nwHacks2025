@@ -3,3 +3,5 @@ google-generativeai
 dotenv
 pillow
 flask
+flask_cors
+firebase_admin
