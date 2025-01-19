@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
 
@@ -30,7 +36,7 @@ const RegistrationPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        Let’s Get to Know You
+        Let’s Get to Know You🌳
       </MotiText>
 
       {/* Animated Subtitle */}
@@ -53,12 +59,14 @@ const RegistrationPage: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Name"
+          placeholderTextColor="#8B4513"
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor="#8B4513"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -66,6 +74,7 @@ const RegistrationPage: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor="#8B4513"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -73,6 +82,7 @@ const RegistrationPage: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Age"
+          placeholderTextColor="#8B4513"
           value={age}
           onChangeText={setAge}
           keyboardType="numeric"
@@ -80,19 +90,22 @@ const RegistrationPage: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Gender"
+          placeholderTextColor="#8B4513"
           value={gender}
           onChangeText={setGender}
         />
       </MotiView>
 
-      {/* Animated Button */}
+      {/* Styled Button */}
       <MotiView
         style={styles.buttonContainer}
         from={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800, delay: 1200 }}
       >
-        <Button title="Next: Health Info" onPress={handleNext} />
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next: Health Info</Text>
+        </TouchableOpacity>
       </MotiView>
     </View>
   );
@@ -109,14 +122,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "right", // Align title to the right
-    color: "#333",
+    textAlign: "right",
+    color: "#5C4033",
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 30,
-    textAlign: "right", // Align subtitle to the right
-    color: "#555",
+    textAlign: "right",
+    color: "#5C4033",
     lineHeight: 24,
   },
   inputContainer: {
@@ -125,14 +138,26 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#A0522D", // Muted earthy brown underline
     paddingVertical: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#333",
+    color: "#4B2E2A", // Rich brown text color
   },
   buttonContainer: {
-    alignSelf: "flex-end", // Align button container to the right
+    alignSelf: "flex-end", // Align button to the right
+  },
+  button: {
+    backgroundColor: "#D2B48C", // Earthy brown button color
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#4B2E2A", // White text for contrast
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

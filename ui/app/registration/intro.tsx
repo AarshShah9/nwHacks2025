@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Button } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
 
@@ -15,7 +15,7 @@ const IntroPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        Welcome to [App]
+        Welcome to [App]🌱
       </MotiText>
 
       {/* Animated Subtitle */}
@@ -28,17 +28,19 @@ const IntroPage: React.FC = () => {
         Discover how to make sustainable choices effortlessly.
       </MotiText>
 
-      {/* Animated Button */}
+      {/* Custom Styled Button */}
       <MotiView
         style={styles.buttonContainer}
         from={{ opacity: 0, translateY: -20 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 800, delay: 400 }}
+        transition={{ type: "timing", duration: 800, delay: 800 }}
       >
-        <Button
-          title="Get Started"
+        <TouchableOpacity
+          style={styles.button}
           onPress={() => router.push("/registration/registration")}
-        />
+        >
+          <Text style={styles.buttonText}>Get Started</Text>
+        </TouchableOpacity>
       </MotiView>
     </View>
   );
@@ -48,25 +50,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    padding: 20, // Add padding for consistent spacing
+    padding: 20,
     backgroundColor: "#c8e6c9",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "right", // Align title to the right
-    color: "#333", // Darker color for better readability
+    textAlign: "right",
+    color: "#5C4033",
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 30,
-    textAlign: "right", // Align subtitle to the right
-    color: "#555", // Subtle gray for softer emphasis
-    lineHeight: 24, // Improved readability for multi-line text
+    textAlign: "right",
+    color: "#5C4033",
+    lineHeight: 24,
   },
   buttonContainer: {
-    alignSelf: "flex-end", // Align button container to the right
+    alignSelf: "flex-end",
+  },
+  button: {
+    backgroundColor: "#D2B48C",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#4B2E2A",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

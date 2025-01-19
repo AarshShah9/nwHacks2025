@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
 
@@ -28,7 +34,7 @@ const HealthInfoPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        Do You Have Any Health Considerations?
+        Do You Have Any Health Considerations?🌿
       </MotiText>
 
       {/* Animated Subtitle */}
@@ -51,19 +57,22 @@ const HealthInfoPage: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter allergies (e.g., dairy, nuts)"
+          placeholderTextColor="#8B4513"
           value={allergies}
           onChangeText={setAllergies}
         />
       </MotiView>
 
-      {/* Animated Button */}
+      {/* Styled Button */}
       <MotiView
         style={styles.buttonContainer}
         from={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800, delay: 1200 }}
       >
-        <Button title="Next: Dietary Preferences" onPress={handleNext} />
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next: Dietary Preferences</Text>
+        </TouchableOpacity>
       </MotiView>
     </View>
   );
@@ -80,14 +89,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "right", // Align to the right
-    color: "#333",
+    textAlign: "right", // Align title to the right
+    color: "#5C4033", // Earthy brown for title
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 30,
-    textAlign: "right", // Align to the right
-    color: "#555",
+    textAlign: "right", // Align subtitle to the right
+    color: "#5C4033", // Earthy brown for subtitle
     lineHeight: 24,
   },
   inputContainer: {
@@ -96,14 +105,26 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#A0522D", // Muted earthy brown underline
     paddingVertical: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#333",
+    color: "#4B2E2A", // Rich brown text color
   },
   buttonContainer: {
     alignSelf: "flex-end", // Align button container to the right
+  },
+  button: {
+    backgroundColor: "#D2B48C", // Earthy brown button color
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#4B2E2A", // White text for contrast
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
