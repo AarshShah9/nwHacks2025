@@ -14,7 +14,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
     { id: 6, title: 'Cooking Progress', icon: 'trophy-outline', route: '/progress' },
     { id: 2, title: 'Leaderboard', icon: 'trophy-outline', route: '/leaderboard' },
-    { id: 1, title: 'Profile Settings', icon: 'settings-outline' },
+    { id: 1, title: 'Profile Settings', icon: 'settings-outline', route: '/profile-settings' },
     { id: 3, title: 'Email & Password', icon: 'create-outline' },
     { id: 4, title: 'Subscription', icon: 'card-outline' },
     { id: 5, title: 'Log Out', icon: 'log-out-outline' },
