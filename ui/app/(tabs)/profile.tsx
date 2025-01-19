@@ -11,8 +11,9 @@ type MenuItem = {
 };
 
 const MENU_ITEMS: MenuItem[] = [
+    { id: 6, title: 'Cooking Progress', icon: 'trophy-outline', route: '/progress' },
+    { id: 2, title: 'Leaderboard', icon: 'trophy-outline', route: '/leaderboard' },
   { id: 1, title: 'Profile Settings', icon: 'settings-outline' },
-  { id: 2, title: 'Leaderboard', icon: 'trophy-outline', route: '/leaderboard' },
   { id: 3, title: 'Email & Password', icon: 'create-outline' },
   { id: 4, title: 'Subscription', icon: 'card-outline' },
   { id: 5, title: 'Log Out', icon: 'log-out-outline' },
@@ -42,17 +43,13 @@ export default function ProfileScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>4</Text>
+              <Text style={styles.levelText}>3</Text>
             </View>
             <Text style={styles.statLabel}>Level</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>4560</Text>
+            <Text style={styles.statValue}>256</Text>
             <Text style={styles.statLabel}>Total Points</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>300</Text>
-            <Text style={styles.statLabel}>Teman</Text>
           </View>
         </View>
       </View>
@@ -168,5 +165,21 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     color: '#333',
+  },
+  menuContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuTextContainer: {
+    marginLeft: 15,
+  },
+  menuTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  menuSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
   },
 }); 

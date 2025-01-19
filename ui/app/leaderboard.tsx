@@ -1,78 +1,136 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 
-const MOCK_LEADERBOARD = [
-  { id: 4, name: 'Jennifer', points: 780, change: 3, avatar: '🦊' },
-  { id: 5, name: 'William', points: 756, change: -1, avatar: '🐸' },
-  { id: 6, name: 'Samantha', points: 688, change: -2, avatar: '🐨' },
-  { id: 7, name: 'Emery', points: 628, change: -1, avatar: '🦁' },
-  { id: 8, name: 'Lydia', points: 560, change: -1, avatar: '🐸' },
+// Mock data for users
+const USERS = [
+  {
+    id: 1,
+    name: 'Sarah Chen',
+    points: 1200,
+    avatar: '🦊',
+    weeklyChange: +120,
+  },
+  {
+    id: 2,
+    name: 'Mike Johnson',
+    points: 850,
+    avatar: '🐨',
+    weeklyChange: +85,
+  },
+  {
+    id: 3,
+    name: 'Emma Davis',
+    points: 720,
+    avatar: '🐼',
+    weeklyChange: -20,
+  },
+  {
+    id: 4,
+    name: 'Alex Kim',
+    points: 500,
+    avatar: '🦁',
+    weeklyChange: +50,
+  },
+  {
+    id: 5,
+    name: 'Lisa Wang',
+    points: 350,
+    avatar: '🐸',
+    weeklyChange: +30,
+  },
+  {
+    id: 6,
+    name: 'John Smith',
+    points: 200,
+    avatar: '🐧',
+    weeklyChange: +15,
+  },
 ];
 
-const TOP_THREE = [
-  { id: 2, rank: 2, avatar: '🐧', color: '#8B4513' },
-  { id: 1, rank: 1, avatar: '🐢', color: '#2E7D32', label: 'WINNER' },
-  { id: 3, rank: 3, avatar: '🦊', color: '#D35400' },
-];
+const getLevelInfo = (points: number) => {
+  if (points >= 1000) return { title: 'Gordon Ramsay', icon: '👑' };
+  if (points >= 500) return { title: 'Master Chef', icon: '⭐' };
+  if (points >= 250) return { title: 'Head Chef', icon: '🏆' };
+  if (points >= 100) return { title: 'Sous Chef', icon: '🔪' };
+  return { title: 'Line Cook', icon: '👨‍🍳' };
+};
 
 export default function LeaderboardScreen() {
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
-      {/* Podium Section */}
-      <View style={styles.podiumContainer}>
-        <View style={styles.podiumLayout}>
-          {TOP_THREE.map((item) => (
-            <View 
-              key={item.id} 
-              style={[
-                styles.podiumItem,
-                { 
-                  backgroundColor: item.color,
-                  height: item.rank === 1 ? 120 : item.rank === 2 ? 100 : 80,
-                  marginTop: item.rank === 1 ? 0 : 20
-                }
-              ]}
-            >
-              <View style={styles.avatarContainer}>
-                <Text style={styles.avatar}>{item.avatar}</Text>
-                {item.label && (
-                  <View style={styles.winnerLabel}>
-                    <Text style={styles.winnerText}>{item.label}</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.rankText}>{item.rank}</Text>
+      <Text style={styles.header}>Leaderboard</Text>
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        {/* Top 3 Podium */}
+        <View style={styles.podium}>
+          {/* Second Place */}
+          <View style={[styles.podiumItem, styles.secondPlace]}>
+            <View style={styles.avatarContainer}>
+              <Text style={styles.avatarEmoji}>{USERS[1].avatar}</Text>
+              <Text style={styles.levelIcon}>{getLevelInfo(USERS[1].points).icon}</Text>
             </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Rankings List */}
-      <ScrollView style={styles.rankingsList}>
-        {MOCK_LEADERBOARD.map((item) => (
-          <View key={item.id} style={styles.rankingItem}>
-            <View style={styles.rankingLeft}>
-              <Text style={styles.rankNumber}>{`0${item.id}`}</Text>
-              <Text style={styles.avatar}>{item.avatar}</Text>
-              <Text style={styles.name}>{item.name}</Text>
-            </View>
-            <View style={styles.rankingRight}>
-              <Text style={styles.points}>{item.points} pts</Text>
-              <Text 
-                style={[
-                  styles.change,
-                  { color: item.change > 0 ? '#4CAF50' : '#F44336' }
-                ]}
-              >
-                {item.change > 0 ? '+' : ''}{item.change}
-              </Text>
-            </View>
+            <Text style={styles.podiumName}>{USERS[1].name}</Text>
+            <Text style={styles.podiumPoints}>{USERS[1].points} pts</Text>
+            <Text style={styles.podiumPosition}>#2</Text>
           </View>
-        ))}
+
+          {/* First Place */}
+          <View style={[styles.podiumItem, styles.firstPlace]}>
+            <View style={styles.avatarContainer}>
+              <Text style={styles.avatarEmoji}>{USERS[0].avatar}</Text>
+              <Text style={styles.levelIcon}>{getLevelInfo(USERS[0].points).icon}</Text>
+            </View>
+            <Text style={styles.podiumName}>{USERS[0].name}</Text>
+            <Text style={styles.podiumPoints}>{USERS[0].points} pts</Text>
+            <Text style={styles.podiumPosition}>#1</Text>
+          </View>
+
+          {/* Third Place */}
+          <View style={[styles.podiumItem, styles.thirdPlace]}>
+            <View style={styles.avatarContainer}>
+              <Text style={styles.avatarEmoji}>{USERS[2].avatar}</Text>
+              <Text style={styles.levelIcon}>{getLevelInfo(USERS[2].points).icon}</Text>
+            </View>
+            <Text style={styles.podiumName}>{USERS[2].name}</Text>
+            <Text style={styles.podiumPoints}>{USERS[2].points} pts</Text>
+            <Text style={styles.podiumPosition}>#3</Text>
+          </View>
+        </View>
+
+        {/* Rest of the Leaderboard */}
+        <View style={styles.leaderboardList}>
+          {USERS.slice(3).map((user, index) => {
+            const levelInfo = getLevelInfo(user.points);
+            
+            return (
+              <View key={user.id} style={styles.leaderboardItem}>
+                <Text style={styles.rank}>#{index + 4}</Text>
+                <Text style={styles.smallAvatarEmoji}>{user.avatar}</Text>
+                <View style={styles.userInfo}>
+                  <Text style={styles.userName}>{user.name}</Text>
+                  <Text style={styles.userLevel}>{levelInfo.title}</Text>
+                </View>
+                <View style={styles.pointsContainer}>
+                  <Text style={styles.points}>{user.points}</Text>
+                  <Text 
+                    style={[
+                      styles.weeklyChange,
+                      { color: user.weeklyChange >= 0 ? '#4CAF50' : '#F44336' }
+                    ]}
+                  >
+                    {user.weeklyChange >= 0 ? '+' : ''}{user.weeklyChange}
+                  </Text>
+                </View>
+                <Text style={styles.levelIcon}>{levelInfo.icon}</Text>
+              </View>
+            );
+          })}
+        </View>
       </ScrollView>
     </View>
   );
@@ -81,107 +139,119 @@ export default function LeaderboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f9fa',
+    backgroundColor: '#fff',
+    paddingTop: 60,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 40,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginLeft: 10,
+    textAlign: 'center',
+    marginBottom: 20,
   },
-  podiumContainer: {
-    backgroundColor: '#f8e7d3',
-    padding: 20,
-    borderRadius: 20,
-    margin: 20,
+  scrollView: {
+    flex: 1,
   },
-  podiumLayout: {
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  podium: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-end',
-    height: 150,
+    marginBottom: 30,
+    height: 200,
   },
   podiumItem: {
-    width: 80,
-    borderRadius: 15,
-    marginHorizontal: 5,
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    marginHorizontal: 10,
+    paddingTop: 20,
   },
   avatarContainer: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#8B4513',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatar: {
+  avatarEmoji: {
+    fontSize: 40,
+  },
+  smallAvatarEmoji: {
+    fontSize: 30,
+    marginRight: 15,
+    width: 50,
+    textAlign: 'center',
+  },
+  levelIcon: {
     fontSize: 24,
+    position: 'absolute',
+    bottom: -10,
+    right: -10,
   },
-  winnerLabel: {
-    backgroundColor: '#FFD700',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+  podiumName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 15,
+  },
+  podiumPoints: {
+    fontSize: 14,
+    color: '#666',
+  },
+  podiumPosition: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#8B4513',
     marginTop: 5,
   },
-  winnerText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#000',
+  leaderboardList: {
+    gap: 15,
   },
-  rankText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  rankingsList: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-  },
-  rankingItem: {
+  leaderboardItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f8f8f8',
     padding: 15,
-    borderRadius: 15,
-    marginBottom: 10,
+    borderRadius: 12,
   },
-  rankingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rankNumber: {
+  rank: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#666',
-    width: 30,
+    width: 40,
   },
-  name: {
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
     fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 10,
+    fontWeight: '600',
   },
-  rankingRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  userLevel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  pointsContainer: {
+    alignItems: 'flex-end',
+    marginRight: 15,
   },
   points: {
     fontSize: 16,
-    fontWeight: '500',
-    marginRight: 10,
+    fontWeight: 'bold',
   },
-  change: {
+  weeklyChange: {
     fontSize: 14,
-    fontWeight: '500',
+  },
+  firstPlace: {
+    transform: [{ translateY: -20 }],
+  },
+  secondPlace: {
+    transform: [{ translateY: 10 }],
+  },
+  thirdPlace: {
+    transform: [{ translateY: 20 }],
   },
 }); 
