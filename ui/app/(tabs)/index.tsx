@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useUser } from '../../context/UserContext';
+import { useEffect } from 'react';
 
 const QUICK_ACTIONS = [
   { id: 1, icon: 'grid' as keyof typeof Ionicons.glyphMap, label: 'My Fridge', route: '/fridge'},
@@ -67,6 +68,11 @@ const TRENDING_RECIPES = [
 export default function DiscoverScreen() {
   const router = useRouter();
   const { profileData, loading } = useUser();
+  const { refetch } = useUser();
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const getLevel = (exp: number) => {
     if (exp >= 1000) return 5;
