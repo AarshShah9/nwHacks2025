@@ -31,7 +31,51 @@ export default function RootLayout() {
   return (
     <UserProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
+        <Stack screenOptions={{ headerTintColor: '#8B4513' }}>
+          {/* Registration Flow */}
+          <Stack.Screen 
+            name="intro" 
+            options={{ 
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="userbasic" 
+            options={{ 
+              headerShown: true,
+              title: 'Basic Information',
+            }}
+          />
+          <Stack.Screen 
+            name="health" 
+            options={{ 
+              headerShown: true,
+              title: 'Health Information',
+            }}
+          />
+          <Stack.Screen 
+            name="preferences" 
+            options={{ 
+              headerShown: true,
+              title: 'Preferences',
+            }}
+          />
+          <Stack.Screen 
+            name="confirmation" 
+            options={{ 
+              headerShown: true,
+              title: 'Confirm Details',
+            }}
+          />
+          <Stack.Screen 
+            name="onboarding" 
+            options={{ 
+              headerShown: true,
+              title: 'Welcome',
+            }}
+          />
+
+          {/* Main App Screens */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen 
@@ -39,7 +83,6 @@ export default function RootLayout() {
             options={{ 
               headerShown: true,
               title: 'Top Chefs',
-              headerTintColor: '#8B4513',
             }} 
           />
           <Stack.Screen 
@@ -47,7 +90,6 @@ export default function RootLayout() {
             options={{ 
               headerShown: true,
               title: 'Cooking Progress',
-              headerTintColor: '#8B4513',
             }} 
           />
           <Stack.Screen 
@@ -55,7 +97,6 @@ export default function RootLayout() {
             options={{ 
               headerShown: true,
               title: 'My Fridge',
-              headerTintColor: '#8B4513',
             }} 
           />
           <Stack.Screen 
@@ -63,7 +104,13 @@ export default function RootLayout() {
             options={{ 
               headerShown: true,
               title: 'Profile Settings',
-              headerTintColor: '#8B4513',
+            }} 
+          />
+          <Stack.Screen 
+            name="recipe/[id]" 
+            options={{ 
+              headerShown: true,
+              title: 'Recipe Details',
             }} 
           />
         </Stack>

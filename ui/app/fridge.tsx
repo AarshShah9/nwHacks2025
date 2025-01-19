@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
+import { API_URL } from '@/constants/api';
 
 interface FridgeItem {
   name: string;
@@ -28,7 +29,7 @@ export default function FridgeScreen() {
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://128.189.228.211:5000/inventory/get');
+      const response = await fetch(`${API_URL}/inventory/get`);
       const data: InventoryResponse = await response.json();
       setFridgeItems(data.ingredients);
     } catch (error) {

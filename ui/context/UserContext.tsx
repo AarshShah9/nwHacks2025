@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_URL } from '../constants/api';
 
 interface ProfileData {
   name: string;
@@ -24,7 +25,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://128.189.228.211:5000/profile/get');
+      const response = await fetch(`${API_URL}/profile/get`);
       const data = await response.json();
       setProfileData(data);
     } catch (error) {

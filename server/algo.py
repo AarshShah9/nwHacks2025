@@ -74,7 +74,6 @@ def generate_full_recipe_instructions(ingredients, allergies):
     """
     Uses Google's Gemini API to generate detailed recipe instructions based on the provided recipe header.
     """
-    print(f"Generating full recipe instructions for: ...")
     load_dotenv()
     ingredient_names = []
     print(ingredients)
@@ -90,10 +89,10 @@ def generate_full_recipe_instructions(ingredients, allergies):
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
     prompt = f"""
-    I want to generate a structured recipe header using the following ingredients: {", ".join(ingredient_names)}.
+    I want to generate a structured recipe header using the following ingredients: {allergies}.
     You may assume we have common household commodities.
 
-    I have the following dietary restrictions: {", ".join(allergies)}. Do not include any of these ingredients in the recipe.
+    I have the following dietary restrictions: {allergies}. Do not include any of these ingredients in the recipe.
 
 
     Structure the response in JSON format as follows:
