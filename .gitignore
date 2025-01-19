@@ -129,6 +129,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# API keys
-key.js
+# firestore
 service-account-key.json
+
+__pycache__
