@@ -77,7 +77,6 @@ def generate_full_recipe_instructions(ingredients, allergies):
     print(f"Generating full recipe instructions for: ...")
     load_dotenv()
     ingredient_names = []
-    print(ingredients)
     for ingred in ingredients:
         ingredient_names.append(ingred['name'])
 
@@ -89,42 +88,80 @@ def generate_full_recipe_instructions(ingredients, allergies):
 
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
+    generation_config = {
+    "temperature": 2,
+    "top_p": 0.95,  # Use snake_case for consistency in Python
+    "top_k": 40,  # Adjusted key to match snake_case
+    "max_output_tokens": 8192,  # Consistent snake_case
+    "response_mime_type": "application/json",  # Consistent snake_case
+    "response_schema": {
+        "type": "object",
+        "properties": {
+            "recipe_name": {
+                "type": "string",
+                "description": "The name of the recipe."
+            },
+            "short_description": {
+                "type": "string",
+                "description": "A short description of the recipe."
+            },
+            "cooking_time": {
+                "type": "number",
+                "description": "The time required to cook the recipe in minutes."
+            },
+            "difficulty": {
+                "type": "string",
+                "enum": ["Easy", "Medium", "Hard"],
+                "description": "The difficulty level of the recipe."
+            },
+            "ingredients": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "A list of ingredients required for the recipe."
+            },
+            "instructions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "Step-by-step instructions for preparing the recipe."
+            },
+            "url": {
+                "type": "string",
+                "description": "A URL to the full recipe or source."
+            }
+        },
+        "required": [
+            "recipe_name",
+            "short_description",
+            "cooking_time",
+            "difficulty",
+            "ingredients",
+            "instructions"
+        ]
+    }
+    }
+
     prompt = f"""
     I want to generate a structured recipe header using the following ingredients: {", ".join(ingredient_names)}.
     You may assume we have common household commodities.
 
     I have the following dietary restrictions: {", ".join(allergies)}. Do not include any of these ingredients in the recipe.
 
-
-    Structure the response in JSON format as follows:
-    {{
-    "recipe_name": "your answer",
-    "short_description": "your answer",
-    "cooking_time": "your answer, as a number in minutes",
-    "difficulty": "Choose from: Easy/Medium/Hard",
-    "ingredients": ["List all required ingredients here, separated by comments"],
-    "instructions": ["Step-by-step cooking instructions, separated by coommas"],
-    "url": "find an image on the internet that matches this recipe well, and put it here"
-    }}
-
-    Do not include any text outside the JSON format.
+    Structure the response in JSON format as given
     """
 
-    response = model.generate_content(prompt)
-
-    result = response.text
-
+    response = model.generate_content(prompt, generation_config=generation_config)
+    candidates = response.candidates  # or whatever method is provided
+    # Accessing the first candidate's text field
+    gg = candidates[0]
+    text = gg.content.parts[0].text
+          
     log_to_file(prompt, "recipe_instructions_generation/prompts")
-    log_to_file(response.text, "recipe_instructions_generation/responses")
-
-    try:
-        full_recipe = parse_json_response(result)
-    except ValueError as e:
-        log_to_file(str(e), "recipe_instructions_generation/errors")
-        full_recipe = None
-
-    print(full_recipe)
-    return full_recipe
+    log_to_file(text, "recipe_instructions_generation/responses")
+    return text
 
 
 def assess_points_from_recipe_header(recipe, restrictions, diseases):
@@ -139,17 +176,52 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set. Please set it as an environment variable.")
     genai.configure(api_key=api_key)
-    ingredient_names = [ingredient['name'] for ingredient in recipe]
-    ingredient_carbon = [ingredient['carbon_footprint'] for ingredient in recipe]
-
     model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+    if isinstance(recipe["ingredients"], str):
+        recipe["ingredients"] = json.loads(recipe["ingredients"])  # Parse string as JSON to get a list
+
+    # Now safely iterate over the ingredients
+    ingredient_names = [ingredient for ingredient in recipe["ingredients"]]
+    generation_config = {
+    "temperature": 2,
+    "max_output_tokens": 8192,  # Use snake_case for consistency in Python
+    "response_mime_type": "application/json",  # Use snake_case and correct key format
+    "response_schema": {  # Correct key to match snake_case convention
+        "type": "object",
+        "properties": {
+            "nutritional_values": {
+                "type": "string",
+                "description": "The nutritional information as a string."
+            },
+            "carbon_footprint": {
+                "type": "number",
+                "description": "The carbon footprint of the recipe, in grams"
+            },
+            "points_response": {
+                "type": "number",
+                "description": "The response in numerical format, representing points."
+            },
+            "justification_response": {
+                "type": "string",
+                "description": "A textual justification or reasoning."
+            },
+            "warnings": {
+                "type": "string",
+                "description": "Warnings or alerts as a string."
+            }
+        },
+        "required": ["nutritional_values", "points_response", "justification_response"]
+    }
+    }
+
+    # Define the prompt template directly
     prompt = f"""
     Based upon the recipe header, I want to assess the recipe with a points system based upon its nutritional value and carbon footprint.
     Use real and accurate nutritional values and carbon footprint values to the best of your abilities based on the recipe name and description.
 
     This is the recipe I have: {recipe["recipe_name"]}, {recipe["short_description"]}. 
 
-    The ingredients and their carbon footprint: {", ".join(([f"- {name}: {carbon}" for name, carbon in zip(ingredient_names, ingredient_carbon)]))}. 
+    The ingredients: {", ".join(ingredient_names)}. 
     These are restrictions and diseases I have: {", ".join(restrictions)}, {", ".join(diseases)}.
     
     If they apply to the recipe, mention it and deduct points accordingly.
@@ -158,27 +230,18 @@ def assess_points_from_recipe_header(recipe, restrictions, diseases):
     - Real nutritional values, and healthiness of the recipe/food
     - Carbon footprint values
     - Deductions for diseases and restrictions violated 
-
-    Structure your response in JSON format as follows:
-    {{
-    "nutritional_values": "your_response_here",
-    "points_response": "your_response_here, as a number",
-    "justification_response": "your_response_here, in one sentence",
-    "warnings": "your_response_here, Include warnings if applicable from diseases or restrictions, or leave as an empty string."
-    }}
-    Do not include any text outside the JSON format.
+    Structure your response in JSON format as given.
     """
-
-    response = model.generate_content(prompt)
-
+    response = model.generate_content(prompt, generation_config=generation_config)
+    candidates = response.candidates  # or whatever method is provided
+    # Accessing the first candidate's text field
+    gg = candidates[0]
+    text = gg.content.parts[0].text
+    
     log_to_file(prompt, "points_analysis/prompts")
-    log_to_file(response.text, "points_analysis/responses")
-    try:
-        points_analysis = parse_json_response(response.text)
-    except ValueError as e:
-        log_to_file(str(e), "points_analysis/errors")
-        points_analysis = None
-    return points_analysis
+    log_to_file(text, "points_analysis/responses")
+
+    return text
 
 
 def main():
