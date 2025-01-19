@@ -7,40 +7,10 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          elevation: 0,
           backgroundColor: '#f6f9fa',
-          height: 60,
         },
         tabBarShowLabel: false,
         headerShown: false,
-        tabBarButton: (props) => {
-          const { accessibilityState, onPress, children } = props;
-          const focused = accessibilityState?.selected;
-
-          return (
-            <TouchableOpacity
-              onPress={onPress}
-              activeOpacity={1}
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <View
-                style={[
-                  {
-                    padding: 10,
-                    borderRadius: 20,
-                  },
-                  focused && {
-                    backgroundColor: '#8B4513',
-                  },
-                ]}>
-                {children}
-              </View>
-            </TouchableOpacity>
-          );
-        },
       }}>
       <Tabs.Screen
         name="index"
@@ -49,8 +19,8 @@ export default function TabLayout() {
             <Ionicons 
               name="restaurant-outline" 
               size={24} 
-              color={focused ? '#FFFFFF' : '#808080'} 
-            />
+              color={focused ? '#8b4614' : '#000000'} 
+              />
           ),
         }}
       />
@@ -61,8 +31,8 @@ export default function TabLayout() {
             <Ionicons 
               name="book-outline" 
               size={24} 
-              color={focused ? '#FFFFFF' : '#808080'} 
-            />
+              color={focused ? '#8b4614' : '#000000'} 
+              />
           ),
         }}
       />
@@ -73,7 +43,7 @@ export default function TabLayout() {
             <Ionicons 
               name="add-circle-outline" 
               size={24} 
-              color={focused ? '#FFFFFF' : '#808080'} 
+            color={focused ? '#8b4614' : '#000000'} 
             />
           ),
         }}
@@ -85,8 +55,8 @@ export default function TabLayout() {
             <Ionicons 
               name="person-outline" 
               size={24} 
-              color={focused ? '#FFFFFF' : '#808080'} 
-            />
+              color={focused ? '#8b4614' : '#000000'} 
+              />
           ),
         }}
       />
