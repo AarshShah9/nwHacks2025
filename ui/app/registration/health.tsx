@@ -82,7 +82,7 @@ const HealthInfoPage: React.FC = () => {
         Select any applicable conditions:
       </MotiText>
       <MotiView
-        style={styles.buttonContainer}
+        style={styles.diseaseButtonContainer}
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ type: "timing", duration: 800, delay: 1200 }}
@@ -111,15 +111,15 @@ const HealthInfoPage: React.FC = () => {
         )}
       </MotiView>
 
-      {/* Styled Next Button */}
+      {/* Separate Next Button Container */}
       <MotiView
-        style={styles.buttonContainer}
+        style={styles.nextButtonContainer}
         from={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800, delay: 1400 }}
       >
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Next: Dietary Preferences</Text>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next: Dietary Preferences</Text>
         </TouchableOpacity>
       </MotiView>
     </View>
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#4B2E2A",
   },
-  buttonContainer: {
+  diseaseButtonContainer: {
     marginBottom: 20,
   },
   diseaseButton: {
@@ -180,14 +180,18 @@ const styles = StyleSheet.create({
   selectedDiseaseButtonText: {
     color: "#F5F5DC",
   },
-  button: {
+  nextButtonContainer: {
+    marginTop: 20,
+    alignItems: "flex-end", // Aligns the Next button to the right
+  },
+  nextButton: {
     backgroundColor: "#D2B48C",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: "center",
   },
-  buttonText: {
+  nextButtonText: {
     color: "#4B2E2A",
     fontSize: 16,
     fontWeight: "bold",
