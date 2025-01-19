@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { View, Button, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { MotiText, MotiView } from "moti";
 
@@ -90,7 +95,9 @@ const ConfirmationPage: React.FC = () => {
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ type: "timing", duration: 800, delay: 1200 }}
         >
-          <Button title="Submit" onPress={handleSubmit} />
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <MotiText style={styles.submitButtonText}>Submit</MotiText>
+          </TouchableOpacity>
         </MotiView>
       )}
     </View>
@@ -102,7 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#c8e6c9",
+    backgroundColor: "#c8e6c9", // Light green background for sustainability
   },
   textAlign: {
     alignItems: "flex-end", // Align all content to the right (use "flex-start" for left alignment)
@@ -112,16 +119,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "right", // Align text to the right
-    color: "#333",
+    color: "#5C4033", // Earthy brown for the title
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 30,
     textAlign: "right", // Align text to the right
-    color: "#555",
+    color: "#6B4226", // Slightly lighter brown for the subtitle
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#F5F5DC", // Beige card background for a soft, natural feel
     borderRadius: 10,
     padding: 20,
     shadowColor: "#000",
@@ -139,14 +146,26 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#4B2E2A", // Rich brown for labels
   },
   value: {
     fontSize: 16,
-    color: "#007BFF", // Highlight values with a subtle blue
+    color: "#228B22", // Forest green for values
   },
   loader: {
     marginTop: 20,
+  },
+  submitButton: {
+    backgroundColor: "#D2B48C", // Earthy brown button
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "#4B2E2A", // Rich brown text for the button
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

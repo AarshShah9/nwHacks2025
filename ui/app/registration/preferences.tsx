@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Button, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
 
@@ -30,7 +30,7 @@ const PreferencesPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800 }}
       >
-        What Are Your Dietary Preferences?
+        What Are Your Dietary Preferences?🥕
       </MotiText>
 
       {/* Animated Subtitle */}
@@ -57,7 +57,9 @@ const PreferencesPage: React.FC = () => {
               styles.preferenceButton,
               preference === diet && styles.selectedButton,
             ]}
-            onPress={() => setPreference(diet)}
+            onPress={
+              () => setPreference(preference === diet ? "" : diet) // Toggle selection
+            }
           >
             <MotiText
               style={styles.buttonText}
@@ -78,7 +80,9 @@ const PreferencesPage: React.FC = () => {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 800, delay: 1200 }}
       >
-        <Button title="Next: Confirmation" onPress={handleNext} />
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <MotiText style={styles.nextButtonText}>Next: Confirmation</MotiText>
+        </TouchableOpacity>
       </MotiView>
     </View>
   );
@@ -95,28 +99,28 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "right", // Align title to the right
-    color: "#333",
+    textAlign: "right",
+    color: "#5C4033",
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 30,
-    textAlign: "right", // Align subtitle to the right
-    color: "#555",
+    textAlign: "right",
+    color: "#5C4033",
     lineHeight: 24,
   },
   buttonContainer: {
     marginBottom: 20,
   },
   preferenceButton: {
-    backgroundColor: "#ADD8E6", // Light blue for unchosen
+    backgroundColor: "#9FE2BF", // Light green for unselected
     padding: 12,
     borderRadius: 5,
     marginVertical: 5,
     alignItems: "center",
   },
   selectedButton: {
-    backgroundColor: "#007BFF", // Darker blue for chosen button
+    backgroundColor: "#228B22", // Forest green for selected
   },
   buttonText: {
     color: "#fff", // White text for buttons
@@ -124,7 +128,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   nextButtonContainer: {
-    alignSelf: "flex-end", // Align button container to the right
+    alignSelf: "flex-end",
+  },
+  nextButton: {
+    backgroundColor: "#D2B48C", // Earthy brown
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  nextButtonText: {
+    color: "#4B2E2A", // Rich brown text
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
