@@ -28,7 +28,7 @@ export default function FridgeScreen() {
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://10.43.65.141:5000/inventory/get');
+      const response = await fetch('http://128.189.228.211:5000/inventory/get');
       const data: InventoryResponse = await response.json();
       setFridgeItems(data.ingredients);
     } catch (error) {

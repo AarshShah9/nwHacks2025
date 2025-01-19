@@ -24,7 +24,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://10.43.65.141:5000/profile/get');
+      const response = await fetch('http://128.189.228.211:5000/profile/get');
       const data = await response.json();
       setProfileData(data);
     } catch (error) {
