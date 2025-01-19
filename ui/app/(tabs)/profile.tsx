@@ -70,7 +70,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Menu Items */}
-      <View style={styles.menuContainer}>
+      <ScrollView style={styles.menuContainer}>
         {MENU_ITEMS.map((item) => (
           <TouchableOpacity 
             key={item.id} 
@@ -83,7 +83,7 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>{item.title}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
