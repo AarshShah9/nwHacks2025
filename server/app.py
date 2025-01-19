@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from database import add_to_inventory, remove_from_inventory, get_inventory, modify_profile, get_profile
+from database import add_to_inventory, remove_from_inventory, get_inventory, modify_profile, get_profile, add_to_recipes, get_recipes
 from algo import get_ingredients_from_image, assess_points_from_recipe_header, generate_full_recipe_instructions
 
 app = Flask(__name__)
@@ -48,12 +48,11 @@ def inventoryGet():
     @params: base64 image in request.data
     @return: json with list of ingredients + amount
 """
-@app.route('/insert', methods=['POST'])
-def insert():
+@app.route('/ingredients/scan', methods=['POST'])
+def ingredientsScan():
     if request.method == 'POST':  
         print("received request")
         ingredients = get_ingredients_from_image(request.get_json().get('image'))
-        
         print(ingredients) 
         # example {'ingredients': [{'name': 'tomato', 'count': 4, 'units': 'piece', 'expiry': 7, 'carbon_footprint': 1}]}
         return ingredients, 200
@@ -66,10 +65,10 @@ def insert():
     @params: ingredients json
     @return: success
 """
-@app.route('/validate_ingredients', methods=['POST'])
-def validate_ingredients():
+@app.route('/ingredients/validate', methods=['POST'])
+def ingredientsValidate():
     if request.method == 'POST':  
-        print("received request")
+        print("received request to add all ingredients")
         ingredients = request.get_json()
         for ingred in ingredients:
             add_to_inventory(ingred['name'], ingred['count'], ingred['units'], ingred['expiry'], ingred['carbon_footprint'])
@@ -82,13 +81,12 @@ def validate_ingredients():
     Generate Recipe Endpoint -> GET
     @return: json with list of recipes and details
 """
-@app.route('/generate', methods=['GET'])
-def generate():
+@app.route('/recipes/generate', methods=['GET'])
+def recipesGenerate():
     if request.method == 'GET':
         profile = get_profile()
         inventory = get_inventory()
-        ingredient_names = [ingredient['name'] for ingredient in inventory['ingredients']]
-        recipe = generate_full_recipe_instructions(ingredient_names, profile['allergies'])
+        recipe = generate_full_recipe_instructions(inventory['ingredients'], profile['allergies'])
         # format:
         # {{
         #     "recipe_name": "your answer",
@@ -105,13 +103,32 @@ def generate():
         # "justification_response": "your_response_here",
         # "warnings": "your_response_here" # Include warnings if applicable, or leave as an empty string.
         # }}
+        new_points = int(points_analysis["points_response"])
 
+        # for now, adding points here 
+        modify_profile(profile['name'], profile['exp'] + new_points, profile['allergies'], 
+                       profile['restrictions'], profile['restrictions'])
         recipe_info = {**recipe, **points_analysis}
-    
+        print(recipe_info)
+
+        add_to_recipes(recipe_info['recipe_name'], recipe_info['short_description'], recipe_info['cooking_time'], recipe_info['difficulty'],  recipe_info['ingredients'], recipe_info['instructions'],
+                       recipe_info['nutritional_values'], recipe_info['points_response'], recipe_info['justification_response'], recipe_info['warnings'])
+
         return recipe_info, 200
     else:
         return error()
 
+
+"""
+    Get Recipes Endpoint -> GET
+    @return: recipes
+"""
+@app.route('/recipes/get', methods=['GET'])
+def recipesGet():
+    if request.method == 'GET':
+        return get_recipes(), 200
+    else:
+        return error()
 
 def error():
     return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
