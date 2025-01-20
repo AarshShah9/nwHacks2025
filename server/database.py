@@ -32,12 +32,14 @@ def add_to_inventory(name, count, units, expiry, carbon_footprint):
 def remove_from_inventory(name, amount):
     inventory_ref = db.collection('inventory')
     inventory_ref = inventory_ref.document(name)
-    count = inventory_ref.get().get('count')
-    if count - amount <= 0:
-        inventory_ref.delete()
-        print("%s has been removed" % (name))
-    else: 
-        inventory_ref.update({ 'count':  count - amount})
+    doc = inventory_ref.get()
+    if doc.exists:
+        count = inventory_ref.get().get('count')
+        if count - amount <= 0:
+            inventory_ref.delete()
+            print("%s has been removed" % (name))
+        else: 
+            inventory_ref.update({ 'count':  count - amount})
 
 '''
     Get entire 'inventory' collection
