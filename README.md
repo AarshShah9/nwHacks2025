@@ -1,19 +1,23 @@
 # CleanCravings
 
-## Pitch Deck
+A mobile application that auto detects ingredients in your fridge using CV and generates recipes for you.
+
+![CleanCravings - Pitch Deck-08](https://github.com/user-attachments/assets/cfe29098-a20a-4bc9-8885-6c0d3715a853)
 ![CleanCravings - Pitch Deck-01](https://github.com/user-attachments/assets/c3f4cf8f-0948-437f-a3db-075e73b64fc6)
+<!--
 ![CleanCravings - Pitch Deck-02](https://github.com/user-attachments/assets/2310d080-0c83-4e41-be8f-8b09c4a8a1fb)
 ![CleanCravings - Pitch Deck-03](https://github.com/user-attachments/assets/afe75c5c-111c-4a05-885c-d95d09fa13de)
 ![CleanCravings - Pitch Deck-04](https://github.com/user-attachments/assets/592b3b7c-34b5-4a0c-8a9e-4ecbdef1e873)
+-->
 ![CleanCravings - Pitch Deck-05](https://github.com/user-attachments/assets/8685a2c6-bdd9-4ee7-bd30-649cf5d95780)
 ![CleanCravings - Pitch Deck-06](https://github.com/user-attachments/assets/8719883c-8f4b-45ba-aa8a-0a38bca5480f)
 ![CleanCravings - Pitch Deck-07](https://github.com/user-attachments/assets/8061cebe-9676-4763-81ed-12831545c987)
-![CleanCravings - Pitch Deck-08](https://github.com/user-attachments/assets/cfe29098-a20a-4bc9-8885-6c0d3715a853)
+<!--
 ![CleanCravings - Pitch Deck-09](https://github.com/user-attachments/assets/89b41123-5a19-41f9-8de6-a2bc88164785)
 ![CleanCravings - Pitch Deck-10](https://github.com/user-attachments/assets/81905cc0-5ce0-46f9-a999-cff0c1be9f5f)
 ![CleanCravings - Pitch Deck-11](https://github.com/user-attachments/assets/47484b61-d8ff-414a-a8f2-551ec5273210)
 ![CleanCravings - Pitch Deck-12](https://github.com/user-attachments/assets/12aea630-3de7-46d9-a7c9-1df2efd38d90)
-
+-->
 
 ## Inspiration
 
